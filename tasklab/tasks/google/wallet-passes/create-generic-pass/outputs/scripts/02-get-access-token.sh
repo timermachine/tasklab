@@ -3,6 +3,7 @@ set -euo pipefail
 
 PROJECT_ROOT="."
 ENV_FILE=""
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
   cat >&2 <<'EOF'
@@ -30,10 +31,11 @@ if [[ -z "$ENV_FILE" ]]; then
   ENV_FILE="$PROJECT_ROOT/.env"
 fi
 
-set -a
-# shellcheck disable=SC1090
-source "$ENV_FILE"
-set +a
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/_lib/env.sh"
+tasklab_env_source "$ENV_FILE"
+tasklab_env_resolve_paths "$PROJECT_ROOT"
+tasklab_env_validate "$ENV_FILE"
 
 SAMPLE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../sample/node" && pwd)"
 
@@ -43,4 +45,3 @@ if [[ ! -d "$SAMPLE_DIR/node_modules" ]]; then
 fi
 
 node "$SAMPLE_DIR/getAccessToken.mjs"
-

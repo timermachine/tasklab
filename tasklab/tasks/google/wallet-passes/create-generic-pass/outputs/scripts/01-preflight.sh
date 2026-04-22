@@ -3,6 +3,7 @@ set -euo pipefail
 
 PROJECT_ROOT="."
 ENV_FILE=""
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
   cat >&2 <<'EOF'
@@ -39,10 +40,11 @@ if [[ ! -f "$ENV_FILE" ]]; then
   exit 1
 fi
 
-set -a
-# shellcheck disable=SC1090
-source "$ENV_FILE"
-set +a
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/_lib/env.sh"
+tasklab_env_source "$ENV_FILE"
+tasklab_env_resolve_paths "$PROJECT_ROOT"
+tasklab_env_validate "$ENV_FILE"
 
 need() {
   local key="$1"
@@ -62,4 +64,3 @@ if [[ ! -f "$GOOGLE_APPLICATION_CREDENTIALS" ]]; then
 fi
 
 echo "Preflight OK"
-
