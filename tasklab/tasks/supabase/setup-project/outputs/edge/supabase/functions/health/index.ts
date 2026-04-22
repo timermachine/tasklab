@@ -1,3 +1,4 @@
+import '@supabase/functions-js/edge-runtime.d.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { supabase } from '../_shared/supabase.ts';
 

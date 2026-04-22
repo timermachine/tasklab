@@ -1,5 +1,7 @@
 # HITL web step guidelines
 
+Primary rules live in `tasklab/instructions/global-instructions.md` (copy-safe, fail-closed).
+
 Each HITL step must include:
 - entry URL
 - optional deep link

@@ -1,5 +1,7 @@
 # Execution policy
 
+Primary rules live in `tasklab/instructions/global-instructions.md`.
+
 ## Surface selection heuristic
 
 Choose execution surfaces per step, not per service.

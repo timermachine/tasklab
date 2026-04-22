@@ -38,9 +38,13 @@ if [[ "$TEMPLATE" == "next" ]]; then
   echo "Installed next scaffold OK: $PROJECT_ROOT"
 elif [[ "$TEMPLATE" == "edge" ]]; then
   test -f "$PROJECT_ROOT/deno.json"
+  test -f "$PROJECT_ROOT/supabase/config.toml"
+  test -f "$PROJECT_ROOT/supabase/seed.sql"
+  test -f "$PROJECT_ROOT/supabase/functions/.env.custom.example"
   test -f "$PROJECT_ROOT/supabase/functions/_shared/supabase.ts"
   test -f "$PROJECT_ROOT/supabase/functions/_shared/cors.ts"
   test -f "$PROJECT_ROOT/supabase/functions/health/index.ts"
+  test -f "$PROJECT_ROOT/supabase/functions/health/deno.json"
   echo "Installed edge scaffold OK: $PROJECT_ROOT"
 else
   echo "Unknown --template: $TEMPLATE (expected next|edge)" >&2

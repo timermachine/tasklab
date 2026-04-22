@@ -6,6 +6,7 @@ A task should define a concrete goal, current research, chosen execution surface
 
 ## Global rules
 
+- Global execution rules live in `tasklab/instructions/global-instructions.md` (HITL-first, fail-closed).
 - Always research the current official docs before choosing an execution surface.
 - Record versions, docs pages, and interfaces checked.
 - Prefer the least brittle surface in this order when appropriate:
@@ -24,6 +25,7 @@ A task should define a concrete goal, current research, chosen execution surface
   - tests
   - report template
 - Keep global policy here. Do not duplicate it inside each task.
+- Avoid `<PLACEHOLDERS>` in commands when values can be sourced from `.env` or CLI output.
 
 ## Task file boundaries
 

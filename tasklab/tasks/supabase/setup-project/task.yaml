@@ -3,7 +3,7 @@ dsl_version: "tasklab.hitl.v0.1"
 task:
   id: "supabase.setup.project"
   title: "Set up Supabase for this project"
-  summary: "Research current Supabase surfaces, choose the best automation mix, configure project access, auth baseline, and local outputs."
+  summary: "Research current Supabase surfaces, choose the best automation mix, configure project access + auth baseline, and produce copy-safe runnable outputs."
   owner: "tasklab"
   tags:
     - "supabase"
@@ -23,6 +23,7 @@ context:
     - "Node.js available locally"
     - "Git repo available locally"
     - "Supabase access"
+    - "Docker available (for local Supabase)"
 
 inputs:
   - name: "project_name"
@@ -66,7 +67,7 @@ completion:
   success_criteria:
     - "Supabase CLI is available and authenticated."
     - "Local repo is linked to the intended Supabase project."
-    - "Project URL and keys are captured in the report or environment handling path."
+    - "Project ref/URL/keys are stored once (project `.env`, gitignored) and referenced by scripts."
     - "Auth URL settings are configured."
     - "TypeScript types are generated."
     - "Smoke checks pass."

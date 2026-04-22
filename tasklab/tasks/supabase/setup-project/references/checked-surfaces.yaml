@@ -1,4 +1,9 @@
 service: supabase
+verified_on: "YYYY-MM-DD"
+tool_versions:
+  supabase_cli: ""
+  node: ""
+  npm: ""
 surfaces_checked:
   - official_docs
   - cli
@@ -11,3 +16,4 @@ notes:
   - "Prefer CLI for bootstrap and type generation."
   - "Use HITL for dashboard configuration."
   - "Use MCP selectively, not as the only path."
+  - "Record UI label drift (keys/fields may be renamed)."

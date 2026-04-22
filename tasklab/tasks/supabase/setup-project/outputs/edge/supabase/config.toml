@@ -1,0 +1,36 @@
+# Minimal Supabase CLI config for an Edge Functions-only repo.
+#
+# Note: Many settings are omitted intentionally; Supabase CLI defaults apply.
+# Ports are set to a non-default range (6432x) to reduce conflicts when multiple
+# Supabase stacks run on the same host.
+
+project_id = "tasklab-supabase-edge"
+
+[api]
+enabled = true
+port = 64321
+
+[db]
+port = 64322
+shadow_port = 64320
+
+[studio]
+enabled = true
+port = 64323
+api_url = "http://127.0.0.1"
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[edge_runtime]
+enabled = true
+policy = "per_worker"
+deno_version = 2
+
+[functions.health]
+enabled = true
+verify_jwt = true
+import_map = "./functions/health/deno.json"
+entrypoint = "./functions/health/index.ts"
+

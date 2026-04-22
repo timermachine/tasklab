@@ -16,9 +16,12 @@ ui_expectation:
   expected_labels:
     - Project Settings
     - API
-    - URL
+    - Project URL
+    - Project ID (Reference used in APIs and URLs)
     - anon
     - service_role
+    - sb_publishable_
+    - sb_secret_
 
 actions:
   - kind: navigate
@@ -27,27 +30,35 @@ actions:
   - kind: click
     label: Open target project
     locator_hint: Project card matching the chosen project
-  - kind: note
-    label: Record project ref
-    locator_hint: The project ref appears in the URL as /project/<project-ref>/...
   - kind: click
     label: Open Project Settings
     locator_hint: Gear icon or "Project Settings" in the left sidebar
   - kind: click
     label: Open API
     locator_hint: "API" under Project Settings
+  - kind: note
+    label: Persist values (copy once)
+    locator_hint: Your local project root
+    text: "Copy outputs/env/.env.example to your project root as `.env` (gitignored), then paste values into: SUPABASE_PROJECT_REF, SUPABASE_URL, SUPABASE_ANON_KEY."
+  - kind: copy
+    label: Copy Project ID (Reference used in APIs and URLs)
+    locator_hint: "Project ID (Reference used in APIs and URLs)" field/value
   - kind: copy
     label: Copy Project URL
-    locator_hint: URL field in the API page
+    locator_hint: "Project URL" field/value
   - kind: copy
     label: Copy anon/public key
     locator_hint: "anon" or "public" API key row
   - kind: copy
     label: Copy service role key
     locator_hint: "service_role" key row (treat as secret)
+  - kind: note
+    label: Key model note
+    locator_hint: API keys section
+    text: "Supabase is introducing `sb_publishable_...` / `sb_secret_...` keys. For Edge Functions JWT verification, legacy JWT keys (`anon` / `service_role`) are typically required. If your project only shows publishable/secret keys, record what you see in the report and verify the correct key type for your runtime."
 
 clipboard:
-  - label: Project ref
+  - label: Project ref (Project ID / Reference)
     value_from: project_ref
   - label: Project URL
     value_from: supabase_url
@@ -59,9 +70,9 @@ clipboard:
 
 verify:
   - kind: checkbox_confirmation
-    label: Values recorded in `outputs/reports/setup-report.md` and/or project `.env.local`
+    label: Values recorded in project `.env` (gitignored) and paths/evidence recorded in `outputs/reports/setup-report.md`
 
 fallback:
   - kind: note
     label: If the navigation labels changed
-    text: "Use dashboard search for 'API' or 'Project URL', or open Project Settings and look for an API section."
+    text: "Use dashboard search for 'API' or 'Project URL', or open Project Settings and look for an API section. Record the exact labels you see (UI drift) in the report."
