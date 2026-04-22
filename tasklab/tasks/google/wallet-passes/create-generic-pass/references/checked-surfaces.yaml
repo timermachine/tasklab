@@ -1,0 +1,13 @@
+service: google-wallet-passes
+verified_on: "2026-04-22"
+tool_versions:
+  node: ""
+  npm: ""
+surfaces_checked:
+  - official_docs
+  - gcp_console
+  - rest_api_docs
+  - save_jwt_docs
+notes:
+  - "Record the exact API name label used in Cloud Console."
+  - "Record the exact JWT claim shape used for save URL."

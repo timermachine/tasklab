@@ -19,6 +19,7 @@ steps:
   - "Copy inputs.example.yaml -> inputs.yaml (local only; no secrets)."
   - "Install scaffold into your project (outputs/scripts/00-install-scaffold.sh with --project-root and --template)."
   - "Create repo-local .env in your project root (copy outputs/env/.env.example to .env; gitignore it)."
+  - "Run outputs/scripts/00-hitl-links.sh (prints deep links + where-to-click for copy-once values)."
   - "HITL: hitl/collect-project-values.step.yaml (fill your project-root .env; copy-safe)."
   - "Run outputs/scripts/01-check-cli.sh"
   - "Run outputs/scripts/02-login.sh"

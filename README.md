@@ -4,6 +4,7 @@ This package contains:
 - TaskLab global instructions and DSL
 - a generic setup-service template
 - one concrete task: `supabase/setup-project`
+- a second task: `google/wallet-passes/create-generic-pass`
 - executable output placeholders for scripts, SQL, code, tests, and reports
 
 ## Structure
@@ -61,6 +62,7 @@ bash tasklab/tasks/supabase/setup-project/outputs/scripts/99-run-tests.sh \
    - `hitl/*.step.yaml` (only for dashboard/UI steps)
    - `outputs/` (scripts/code/sql/tests/report)
    - `references/` (docs URLs + “verified on” + versions)
+   - `outputs/scripts/00-hitl-links.sh` (required when any copy-once values exist: IDs/keys/URLs) and optionally `outputs/scripts/00-hitl-portal.sh`
 4) Run the task end-to-end at least once, then promote stable artifacts to TaskLib later.
 
 ## Intended workflow (short)

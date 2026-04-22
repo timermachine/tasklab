@@ -11,6 +11,8 @@ Each HITL step must include:
 - verification check
 - fallback if the UI changed
 
+If a task requires copy-once values, also provide `outputs/scripts/00-hitl-links.sh` that prints the same deep links + “where to click” guidance in terminal-friendly form.
+
 Prefer:
 - clickable URLs
 - copy-ready strings

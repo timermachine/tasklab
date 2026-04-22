@@ -1,0 +1,11 @@
+{
+  "name": "tasklab-google-wallet-passes-sample",
+  "private": true,
+  "type": "module",
+  "description": "Minimal working sample used by TaskLab scripts for Google Wallet passes.",
+  "dependencies": {
+    "google-auth-library": "^9.0.0",
+    "jsonwebtoken": "^9.0.0"
+  }
+}
+

@@ -9,6 +9,7 @@ A task should define a concrete goal, current research, chosen execution surface
 - Global execution rules live in `tasklab/instructions/global-instructions.md` (HITL-first, fail-closed).
 - Always research the current official docs before choosing an execution surface.
 - Record versions, docs pages, and interfaces checked.
+- Prefer “deep links that matter” over home pages: link directly to the exact docs page, console page, or API reference you used.
 - Prefer the least brittle surface in this order when appropriate:
   1. official API
   2. official CLI
@@ -51,6 +52,26 @@ Runnable artifacts and tests.
 
 ### `references/`
 Links, version notes, checked surfaces.
+
+## Mandatory “HITL links” helper (when copy-once values exist)
+
+If the operator must manually look up/copy any values (project ids, issuer ids, keys, URLs, regions, etc.), add:
+
+- `outputs/scripts/00-hitl-links.sh` (required)
+- `outputs/scripts/00-hitl-portal.sh` (optional but recommended when there are many links or long click paths)
+
+`00-hitl-links.sh` must:
+
+- Print clickable deep links (terminal-friendly) to the exact console pages the operator needs.
+- For each required value, print:
+  - the env var / config key name (e.g. `GCP_PROJECT_ID=`)
+  - the URL to open
+  - the click path / where to find it (menu path + exact field label)
+  - exactly what to copy
+  - where to paste it (file + key)
+- Avoid vague guidance like “find the official landing page” or “search for X” unless UI drift forces it; if search is required, say exactly what to search for.
+
+`references/docs.md` must contain the exact deep links used by the task, not placeholders.
 
 ## Promotion rule
 

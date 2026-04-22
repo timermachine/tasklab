@@ -38,6 +38,11 @@ Rules:
 - scripts read the file (no repeated copy/paste)
 - reports record file paths + verification commands (never paste secrets)
 
+Tip:
+
+- If the task provides `outputs/scripts/00-hitl-links.sh`, run it first. It should print the exact deep links + click paths for each value you must copy once (project ids, keys, etc.).
+- If the task provides `outputs/scripts/00-hitl-portal.sh`, it can generate a local HTML “portal” with the same links + copy buttons.
+
 ## 4) Execute the plan (scripts first, HITL when required)
 
 Typical pattern:
@@ -65,4 +70,3 @@ Capture evidence in:
 Only after the task has worked end-to-end and the artifacts are reusable:
 
 - promote stable pieces into shared templates/TaskLib
-

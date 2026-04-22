@@ -1,0 +1,53 @@
+type: hitl_web_step
+id: enable_api_and_issuer
+title: Enable Wallet API and ensure issuer access exists
+
+target:
+  service: google-wallet-passes
+  entry_url: https://console.cloud.google.com/apis/library/walletobjects.googleapis.com
+
+doc_check:
+  docs:
+    - label: REST API auth credentials (Generic pass)
+      url: https://developers.google.com/wallet/generic/getting-started/auth/rest
+    - label: Set up an issuer account (Generic pass)
+      url: https://developers.google.com/wallet/generic/getting-started/issuer-onboarding
+
+ui_expectation:
+  page_name: Google Cloud Console
+  expected_labels:
+    - APIs & Services
+    - Enabled APIs & services
+    - Library
+    - Enable
+
+actions:
+  - kind: navigate
+    label: Open the Google Wallet API enable page (walletobjects)
+    url: https://console.cloud.google.com/apis/library/walletobjects.googleapis.com
+  - kind: note
+    label: CLI-first option (recommended)
+    locator_hint: Your terminal
+    text: "If you have `gcloud` installed, prefer CLI automation: run `outputs/scripts/10-gcloud-bootstrap.sh` to enable APIs + create a service account + download a key. Use this HITL flow only if the CLI path is unavailable or blocked."
+  - kind: note
+    label: Select the correct project
+    locator_hint: Project picker in the top bar
+  - kind: click
+    label: Enable the API (if not enabled)
+    locator_hint: "Enable" button on the API page
+  - kind: verify
+    label: Confirm API is enabled
+    locator_hint: APIs & Services → Enabled APIs & services
+  - kind: note
+    label: Issuer console (create/find issuer id)
+    locator_hint: Google Pay & Wallet console
+    text: "Open https://pay.google.com/business/console/ and ensure you have an Issuer account. Create one if needed (new accounts start in demo mode). Find and record the numeric issuer id (ISSUER_ID). If issuer access/approval blocks progress, record the exact message + remediation in the setup report."
+
+verify:
+  - kind: checkbox_confirmation
+    label: API is enabled and issuer id is known (or blocker recorded)
+
+fallback:
+  - kind: note
+    label: If UI labels changed
+    text: "Use console search for 'API Library' and 'Enabled APIs'. Record the exact API name label you enabled (expected service is walletobjects)."

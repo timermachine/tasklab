@@ -1,0 +1,7 @@
+gcp_project_id: "my-gcp-project"
+issuer_id: "1234567890123456789"
+class_suffix: "tasklab_generic"
+object_suffix: "demo_001"
+service_account_key_path: "/abs/path/to/service-account.key.json"
+pass_title: "TaskLab Generic Pass"
+

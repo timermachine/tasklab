@@ -1,0 +1,71 @@
+dsl_version: "tasklab.hitl.v0.1"
+
+task:
+  id: "google.wallet.passes.create_generic_pass"
+  title: "Create a Google Wallet pass (Generic pass)"
+  summary: "Provision issuer + API access, create a Generic pass class/object, and generate a working 'Save to Google Wallet' link."
+  owner: "tasklab"
+  tags:
+    - "google"
+    - "wallet"
+    - "passes"
+    - "setup"
+    - "hitl"
+    - "api"
+
+context:
+  product: "google-wallet-passes"
+  environment: "dev"
+  assumptions:
+    - "Operator has access to a Google Cloud project and can use Google Cloud Console."
+    - "Operator can create a service account + download a JSON key file (or use Workload Identity)."
+    - "Issuer access/approval may be required depending on account state."
+  prerequisites:
+    - "Node.js available locally (for sample generator)"
+    - "Google Cloud account access"
+    - "Browser access for HITL console steps"
+
+inputs:
+  - name: "gcp_project_id"
+    type: "string"
+    required: true
+  - name: "issuer_id"
+    type: "string"
+    required: true
+  - name: "class_suffix"
+    type: "string"
+    required: true
+  - name: "object_suffix"
+    type: "string"
+    required: true
+  - name: "service_account_key_path"
+    type: "string"
+    required: true
+  - name: "pass_title"
+    type: "string"
+    required: true
+
+outputs:
+  - name: "class_id"
+    type: "string"
+  - name: "object_id"
+    type: "string"
+  - name: "save_url"
+    type: "url"
+  - name: "env_example_file"
+    type: "string"
+  - name: "setup_report"
+    type: "string"
+
+completion:
+  success_criteria:
+    - "Issuer + API access configured (or explicitly blocked with documented reason)."
+    - "Generic class created (or verified already exists)."
+    - "Generic object created (or verified already exists)."
+    - "A 'Save to Google Wallet' URL is generated and successfully adds the pass in Wallet."
+  evidence_required:
+    - "docs checked (verified_on + URLs)"
+    - "surface decision (API vs CLI vs HITL)"
+    - "scripts run"
+    - "acceptance test result"
+
