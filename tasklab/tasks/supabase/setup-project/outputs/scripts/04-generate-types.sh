@@ -53,9 +53,17 @@ echo "Generating Supabase TypeScript types to $OUT_FILE"
 if [[ -n "$PROJECT_ROOT" ]]; then
   (
     cd "$PROJECT_ROOT"
-    npx --yes supabase@latest gen types typescript --linked > "$OUT_FILE"
+    if command -v supabase >/dev/null 2>&1; then
+      supabase gen types typescript --linked > "$OUT_FILE"
+    else
+      npx --yes supabase@latest gen types typescript --linked > "$OUT_FILE"
+    fi
   )
 else
-  npx --yes supabase@latest gen types typescript --linked > "$OUT_FILE"
+  if command -v supabase >/dev/null 2>&1; then
+    supabase gen types typescript --linked > "$OUT_FILE"
+  else
+    npx --yes supabase@latest gen types typescript --linked > "$OUT_FILE"
+  fi
 fi
 echo "Done."

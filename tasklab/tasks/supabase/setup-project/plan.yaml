@@ -23,7 +23,7 @@ steps:
   - "Run outputs/scripts/03-link-project.sh --project-root <your-project-root> --project-ref <project-ref>"
   - "HITL: hitl/configure-auth-urls.step.yaml"
   - "HITL (optional): hitl/enable-google.step.yaml"
-  - "Run outputs/scripts/00-install-scaffold.sh --project-root <your-project-root>"
+  - "Run outputs/scripts/00-install-scaffold.sh --project-root <your-project-root> --template next|edge"
   - "Run outputs/scripts/04-generate-types.sh --project-root <your-project-root>"
   - "Run outputs/scripts/99-run-tests.sh"
   - "Update outputs/reports/setup-report.md with actual results."

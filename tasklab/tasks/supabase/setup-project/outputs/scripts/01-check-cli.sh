@@ -7,5 +7,10 @@ echo "npm:  $(command -v npm || echo 'missing')"
 echo "npx:  $(command -v npx || echo 'missing')"
 echo
 
-# Pin to latest to avoid relying on a global install.
-npx --yes supabase@latest --version
+if command -v supabase >/dev/null 2>&1; then
+  echo "Supabase CLI: $(command -v supabase)"
+  supabase --version
+else
+  echo "Supabase CLI: not found (will use npx)"
+  npx --yes supabase@latest --version
+fi

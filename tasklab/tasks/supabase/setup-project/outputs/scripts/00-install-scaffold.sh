@@ -5,15 +5,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUTS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 PROJECT_ROOT="."
+TEMPLATE="next"
 FORCE=false
 
 usage() {
   cat >&2 <<'EOF'
 Usage:
-  00-install-scaffold.sh --project-root <dir> [--force]
+  00-install-scaffold.sh --project-root <dir> [--template next|edge] [--force]
 
 What it does:
-  - Copies this task's `outputs/src/` scaffold into `<project-root>/src/`.
+  - `--template next` copies `outputs/src/` scaffold into `<project-root>/src/`.
+  - `--template edge` copies `outputs/edge/` scaffold into `<project-root>/`.
   - Does NOT overwrite existing files unless --force is provided.
 EOF
 }
@@ -22,6 +24,8 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --project-root)
       PROJECT_ROOT="${2:-}"; shift 2 ;;
+    --template)
+      TEMPLATE="${2:-}"; shift 2 ;;
     --force)
       FORCE=true; shift ;;
     -h|--help)
@@ -39,8 +43,16 @@ if [[ -z "$PROJECT_ROOT" ]]; then
   exit 1
 fi
 
-SRC_DIR="$OUTPUTS_DIR/src"
-DEST_DIR="$PROJECT_ROOT/src"
+if [[ "$TEMPLATE" == "next" ]]; then
+  SRC_DIR="$OUTPUTS_DIR/src"
+  DEST_DIR="$PROJECT_ROOT/src"
+elif [[ "$TEMPLATE" == "edge" ]]; then
+  SRC_DIR="$OUTPUTS_DIR/edge"
+  DEST_DIR="$PROJECT_ROOT"
+else
+  echo "Unknown --template: $TEMPLATE (expected next|edge)" >&2
+  exit 2
+fi
 
 if [[ ! -d "$SRC_DIR" ]]; then
   echo "Missing scaffold dir: $SRC_DIR" >&2

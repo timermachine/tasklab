@@ -45,5 +45,9 @@ fi
 echo "Linking local repo to project: $PROJECT_REF"
 (
   cd "$PROJECT_ROOT"
-  npx --yes supabase@latest link --project-ref "$PROJECT_REF"
+  if command -v supabase >/dev/null 2>&1; then
+    supabase link --project-ref "$PROJECT_REF"
+  else
+    npx --yes supabase@latest link --project-ref "$PROJECT_REF"
+  fi
 )
