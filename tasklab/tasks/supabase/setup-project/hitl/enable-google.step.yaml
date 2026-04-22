@@ -1,0 +1,66 @@
+type: hitl_web_step
+id: enable_google_provider
+title: Enable Google auth provider
+
+target:
+  service: supabase
+  entry_url: https://app.supabase.com
+
+doc_check:
+  docs:
+    - label: Google auth
+      url: https://supabase.com/docs/guides/auth/social-login/auth-google
+
+ui_expectation:
+  page_name: Authentication providers
+  expected_labels:
+    - Authentication
+    - Providers
+    - Google
+
+actions:
+  - kind: navigate
+    label: Open Supabase dashboard
+    url: https://app.supabase.com
+  - kind: click
+    label: Open target project
+    locator_hint: Project card matching the chosen project
+  - kind: click
+    label: Open Authentication
+    locator_hint: Authentication in the left sidebar
+  - kind: click
+    label: Open Providers
+    locator_hint: Providers section
+  - kind: click
+    label: Open Google provider settings
+    locator_hint: Google row or accordion
+  - kind: toggle
+    label: Enable provider
+    locator_hint: Enabled switch
+  - kind: paste
+    label: Paste Client ID
+    target_hint: Client ID field
+    clipboard_ref: google_client_id
+  - kind: paste
+    label: Paste Client Secret
+    target_hint: Client Secret field
+    clipboard_ref: google_client_secret
+  - kind: click
+    label: Save changes
+    locator_hint: Save button
+
+clipboard:
+  - label: Google Client ID
+    value_from: google_client_id
+  - label: Google Client Secret
+    value_from: google_client_secret
+    sensitive: true
+
+verify:
+  - kind: checkbox_confirmation
+    label: Google provider has been enabled and saved
+
+fallback:
+  - kind: note
+    label: If provider UI changed
+    text: "Look under Authentication → Providers (or Sign-in / Identity). If Google is grouped under 'OAuth', expand that section and search for a Google toggle."

@@ -1,0 +1,67 @@
+type: hitl_web_step
+id: collect_project_values
+title: Collect Supabase project ref, URL, and API keys
+
+target:
+  service: supabase
+  entry_url: https://app.supabase.com
+
+doc_check:
+  docs:
+    - label: API keys
+      url: https://supabase.com/docs/guides/api/api-keys
+
+ui_expectation:
+  page_name: Project settings and API keys
+  expected_labels:
+    - Project Settings
+    - API
+    - URL
+    - anon
+    - service_role
+
+actions:
+  - kind: navigate
+    label: Open Supabase dashboard
+    url: https://app.supabase.com
+  - kind: click
+    label: Open target project
+    locator_hint: Project card matching the chosen project
+  - kind: note
+    label: Record project ref
+    locator_hint: The project ref appears in the URL as /project/<project-ref>/...
+  - kind: click
+    label: Open Project Settings
+    locator_hint: Gear icon or "Project Settings" in the left sidebar
+  - kind: click
+    label: Open API
+    locator_hint: "API" under Project Settings
+  - kind: copy
+    label: Copy Project URL
+    locator_hint: URL field in the API page
+  - kind: copy
+    label: Copy anon/public key
+    locator_hint: "anon" or "public" API key row
+  - kind: copy
+    label: Copy service role key
+    locator_hint: "service_role" key row (treat as secret)
+
+clipboard:
+  - label: Project ref
+    value_from: project_ref
+  - label: Project URL
+    value_from: supabase_url
+  - label: Anon key
+    value_from: anon_key
+  - label: Service role key
+    value_from: service_role_key
+    sensitive: true
+
+verify:
+  - kind: checkbox_confirmation
+    label: Values recorded in `outputs/reports/setup-report.md` and/or project `.env.local`
+
+fallback:
+  - kind: note
+    label: If the navigation labels changed
+    text: "Use dashboard search for 'API' or 'Project URL', or open Project Settings and look for an API section."

@@ -1,0 +1,2 @@
+-- Placeholder SQL migration file.
+-- Replace with project-specific schema setup once the task is adapted to your app.

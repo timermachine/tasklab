@@ -1,0 +1,60 @@
+type: hitl_web_step
+id: configure_auth_urls
+title: Configure Supabase auth Site URL and Redirect URLs
+
+target:
+  service: supabase
+  entry_url: https://app.supabase.com
+
+doc_check:
+  docs:
+    - label: Auth overview
+      url: https://supabase.com/docs/guides/auth
+    - label: Redirect URLs
+      url: https://supabase.com/docs/guides/auth/redirect-urls
+
+ui_expectation:
+  page_name: Authentication URL configuration
+  expected_labels:
+    - Authentication
+    - URL Configuration
+
+actions:
+  - kind: navigate
+    label: Open Supabase dashboard
+    url: https://app.supabase.com
+  - kind: click
+    label: Open target project
+    locator_hint: Project card matching the chosen project
+  - kind: click
+    label: Open Authentication
+    locator_hint: Authentication in the left sidebar
+  - kind: click
+    label: Open URL configuration
+    locator_hint: Configuration or URL Configuration under Authentication
+  - kind: paste
+    label: Paste Site URL
+    target_hint: Site URL field
+    clipboard_ref: site_url
+  - kind: paste
+    label: Paste Redirect URLs
+    target_hint: Redirect URLs field
+    clipboard_ref: redirect_urls_csv
+  - kind: click
+    label: Save changes
+    locator_hint: Save button
+
+clipboard:
+  - label: Site URL
+    value_from: site_url
+  - label: Redirect URLs
+    value_from: redirect_urls_csv
+
+verify:
+  - kind: checkbox_confirmation
+    label: Site URL and Redirect URLs have been saved
+
+fallback:
+  - kind: note
+    label: If labels or navigation changed
+    text: "Use dashboard search for 'URL Configuration' or open Authentication settings and look for Site URL / Redirect URLs fields."

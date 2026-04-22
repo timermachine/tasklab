@@ -1,0 +1,30 @@
+type: object
+required:
+  - type
+  - id
+  - title
+  - target
+  - actions
+properties:
+  type:
+    enum: [hitl_web_step]
+  id:
+    type: string
+  title:
+    type: string
+  target:
+    type: object
+  doc_check:
+    type: object
+  ui_expectation:
+    type: object
+  actions:
+    type: array
+  clipboard:
+    type: array
+  verify:
+    type: array
+  fallback:
+    type: array
+  evidence:
+    type: object

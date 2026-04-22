@@ -1,0 +1,6 @@
+project_name: "my-project"
+site_url: "http://localhost:3000"
+redirect_urls_csv: "http://localhost:3000/auth/callback,http://127.0.0.1:3000/auth/callback"
+enable_google_auth: false
+google_client_id: ""
+google_client_secret: ""

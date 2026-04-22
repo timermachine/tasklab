@@ -1,0 +1,77 @@
+dsl_version: "tasklab.hitl.v0.1"
+
+task:
+  id: "supabase.setup.project"
+  title: "Set up Supabase for this project"
+  summary: "Research current Supabase surfaces, choose the best automation mix, configure project access, auth baseline, and local outputs."
+  owner: "tasklab"
+  tags:
+    - "supabase"
+    - "setup"
+    - "auth"
+    - "cli"
+    - "hitl"
+
+context:
+  product: "supabase"
+  environment: "dev"
+  assumptions:
+    - "A Supabase account and target project exist or will be created by the operator."
+    - "The operator has local shell access and dashboard access."
+    - "The app has at least one local or public callback URL."
+  prerequisites:
+    - "Node.js available locally"
+    - "Git repo available locally"
+    - "Supabase access"
+
+inputs:
+  - name: "project_name"
+    type: "string"
+    required: true
+  - name: "site_url"
+    type: "url"
+    required: true
+  - name: "redirect_urls_csv"
+    type: "string"
+    required: true
+  - name: "enable_google_auth"
+    type: "boolean"
+    required: true
+  - name: "google_client_id"
+    type: "string"
+    required: false
+  - name: "google_client_secret"
+    type: "string"
+    required: false
+
+outputs:
+  - name: "project_ref"
+    type: "string"
+  - name: "supabase_url"
+    type: "url"
+  - name: "anon_key"
+    type: "string"
+  - name: "service_role_key"
+    type: "string"
+  - name: "env_example_file"
+    type: "string"
+  - name: "scaffold_install_path"
+    type: "string"
+  - name: "generated_types_file"
+    type: "string"
+  - name: "setup_report"
+    type: "string"
+
+completion:
+  success_criteria:
+    - "Supabase CLI is available and authenticated."
+    - "Local repo is linked to the intended Supabase project."
+    - "Project URL and keys are captured in the report or environment handling path."
+    - "Auth URL settings are configured."
+    - "TypeScript types are generated."
+    - "Smoke checks pass."
+  evidence_required:
+    - "docs checked"
+    - "surface decision"
+    - "scripts run"
+    - "test results"

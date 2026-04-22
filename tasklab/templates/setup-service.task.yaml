@@ -1,0 +1,27 @@
+dsl_version: "tasklab.hitl.v0.1"
+
+task:
+  id: "service.setup.example"
+  title: "Set up XYZ service for this project"
+  summary: "Research current surfaces, choose the best mix of API, CLI, MCP, or HITL, and produce runnable outputs."
+
+context:
+  product: "xyz"
+  environment: "dev"
+
+inputs: []
+outputs: []
+
+execution_policy:
+  prefer: ["api", "cli", "mcp", "hitl_web"]
+  allow_hitl: true
+  portability_required: true
+
+steps: []
+
+completion:
+  success_criteria: []
+  evidence_required: []
+
+references:
+  docs: []

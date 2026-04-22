@@ -1,0 +1,13 @@
+service: supabase
+surfaces_checked:
+  - official_docs
+  - cli
+  - auth_docs
+  - redirect_url_docs
+  - api_keys_docs
+  - types_generation_docs
+  - mcp_docs
+notes:
+  - "Prefer CLI for bootstrap and type generation."
+  - "Use HITL for dashboard configuration."
+  - "Use MCP selectively, not as the only path."

@@ -1,0 +1,24 @@
+type: object
+required:
+  - dsl_version
+  - task
+  - steps
+properties:
+  dsl_version:
+    type: string
+  task:
+    type: object
+  context:
+    type: object
+  inputs:
+    type: array
+  outputs:
+    type: array
+  execution_policy:
+    type: object
+  steps:
+    type: array
+  completion:
+    type: object
+  references:
+    type: object
