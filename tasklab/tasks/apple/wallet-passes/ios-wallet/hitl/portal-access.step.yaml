@@ -1,0 +1,39 @@
+type: hitl_web_step
+id: portal_access
+title: Verify Apple Developer Program access (Certificates, Identifiers & Profiles)
+
+target:
+  service: apple-wallet-passkit
+  entry_url: https://developer.apple.com/account/resources/
+
+doc_check:
+  docs:
+    - label: Programs overview (membership unlocks Certificates, Identifiers & Profiles)
+      url: https://developer.apple.com/help/account/membership/programs-overview
+    - label: Certificates support (membership required for signing certs)
+      url: https://developer.apple.com/support/certificates/
+    - label: Enrollment (web)
+      url: https://developer.apple.com/programs/enroll/
+    - label: Roles/access (org teams)
+      url: https://developer.apple.com/help/account/access/roles
+
+ui_expectation:
+  page_name: Apple Developer
+  expected_labels:
+    - Certificates, Identifiers & Profiles
+    - Identifiers
+    - Certificates
+
+actions:
+  - kind: navigate
+    label: Open Certificates, Identifiers & Profiles
+    url: https://developer.apple.com/account/resources/
+  - kind: note
+    label: If access is blocked
+    locator_hint: Error banner/message on the page
+    text: "If you see: 'This resource is only for developers enrolled in a developer program...' you must (a) enroll in Apple Developer Program or (b) be added to an enrolled organization's team by an Account Holder/Admin. Record the exact message in the setup report."
+
+verify:
+  - kind: checkbox_confirmation
+    label: Portal access is available OR blocker recorded
+

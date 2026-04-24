@@ -1,0 +1,11 @@
+service: apple-wallet-passkit
+verified_on: "2026-04-24"
+tool_versions:
+  openssl: ""
+  python3: ""
+surfaces_checked:
+  - apple_developer_docs
+  - apple_developer_portal
+notes:
+  - "Seed links only; re-verify before use and update verified_on + exact URLs used."
+

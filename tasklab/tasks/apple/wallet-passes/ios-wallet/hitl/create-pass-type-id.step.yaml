@@ -1,0 +1,46 @@
+type: hitl_web_step
+id: create_pass_type_id
+title: Create a Pass Type Identifier (Pass Type ID)
+
+target:
+  service: apple-wallet-passkit
+  entry_url: https://developer.apple.com/account/resources/identifiers/list
+
+doc_check:
+  docs:
+    - label: Building a pass (create pass type identifier)
+      url: https://developer.apple.com/documentation/walletpasses/building-a-pass
+    - label: Creating a generic pass (pass type identifier notes)
+      url: https://developer.apple.com/documentation/walletpasses/creating-a-generic-pass
+
+ui_expectation:
+  page_name: Certificates, Identifiers & Profiles
+  expected_labels:
+    - Identifiers
+    - Add
+    - Pass Type IDs
+
+actions:
+  - kind: navigate
+    label: Open Identifiers list
+    url: https://developer.apple.com/account/resources/identifiers/list
+  - kind: click
+    label: Add (+) an identifier
+    locator_hint: Add / '+' button
+  - kind: note
+    label: Choose Pass Type ID
+    locator_hint: Identifier type selection
+    text: "Select 'Pass Type IDs' and continue."
+  - kind: note
+    label: Enter identifier
+    locator_hint: Identifier form fields
+    text: "Enter a Description and an Identifier in reverse-DNS form starting with `pass.` (example: `pass.com.example.membership-card`)."
+  - kind: note
+    label: Record the value
+    locator_hint: Your terminal / env file
+    text: "Copy the final identifier into your project env as `PASS_TYPE_IDENTIFIER`."
+
+verify:
+  - kind: checkbox_confirmation
+    label: Pass Type ID exists and PASS_TYPE_IDENTIFIER is recorded
+

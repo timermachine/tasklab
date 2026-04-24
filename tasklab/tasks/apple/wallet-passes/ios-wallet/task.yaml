@@ -1,0 +1,65 @@
+dsl_version: "tasklab.hitl.v0.1"
+
+task:
+  id: "apple.wallet.passes.ios_wallet"
+  title: "Build an Apple Wallet pass (.pkpass)"
+  summary: "Scaffold a local pass project and generate an unsigned and signed `.pkpass` using PassKit packaging rules."
+  owner: "tasklab"
+  tags:
+    - "apple"
+    - "ios"
+    - "wallet"
+    - "passkit"
+    - "passes"
+    - "hitl"
+
+context:
+  product: "apple-wallet-passkit"
+  environment: "dev"
+  assumptions:
+    - "Operator has (or can create) an Apple Developer account."
+    - "Operator can create a Pass Type Identifier and download a Pass Type ID certificate (.p12) OR will run unsigned-only and record the access blocker."
+    - "Operator can run local shell scripts."
+  prerequisites:
+    - "openssl available locally"
+    - "python3 available locally"
+
+inputs:
+  - name: "project_root"
+    type: "string"
+    required: true
+  - name: "pass_type_identifier"
+    type: "string"
+    required: true
+  - name: "team_identifier"
+    type: "string"
+    required: true
+  - name: "pass_p12_path"
+    type: "string"
+    required: false
+  - name: "pass_p12_password"
+    type: "string"
+    required: false
+  - name: "wwdr_cert_path"
+    type: "string"
+    required: false
+
+outputs:
+  - name: "scaffold_install_path"
+    type: "string"
+  - name: "unsigned_pkpass_path"
+    type: "string"
+  - name: "signed_pkpass_path"
+    type: "string"
+  - name: "setup_report"
+    type: "string"
+
+completion:
+  success_criteria:
+    - "Scaffold installed into the project root."
+    - "Unsigned `.pkpass` built (packaging smoke-test)."
+    - "Signed `.pkpass` built (when cert inputs are provided)."
+  evidence_required:
+    - "docs checked (verified_on + URLs)"
+    - "scripts run"
+    - "test results"

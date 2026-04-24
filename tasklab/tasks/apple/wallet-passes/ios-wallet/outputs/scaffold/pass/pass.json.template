@@ -1,0 +1,29 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.example.my-pass",
+  "teamIdentifier": "ABCDE12345",
+  "serialNumber": "demo-0001",
+  "organizationName": "TaskLab",
+  "description": "TaskLab demo pass",
+  "logoText": "TaskLab",
+  "foregroundColor": "rgb(255,255,255)",
+  "backgroundColor": "rgb(0,0,0)",
+  "labelColor": "rgb(255,255,255)",
+  "generic": {
+    "primaryFields": [
+      {
+        "key": "primary",
+        "label": "Member",
+        "value": "Example"
+      }
+    ]
+  },
+  "barcodes": [
+    {
+      "format": "PKBarcodeFormatQR",
+      "message": "tasklab",
+      "messageEncoding": "iso-8859-1"
+    }
+  ]
+}
+

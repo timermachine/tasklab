@@ -1,0 +1,26 @@
+decision:
+  service: "apple-wallet-passkit"
+  chosen_surfaces:
+    - step: "identifiers + certificates"
+      surface: "hitl_web"
+      reason: "Apple Developer portal is a trust boundary; requires login, approvals, and downloaded key material."
+    - step: "pass build"
+      surface: "local_script"
+      reason: "Packaging and signing requires local key material; scripts are deterministic and testable."
+
+steps:
+  - "Review references; update research.md + references/checked-surfaces.yaml (verified_on + links)."
+  - "HITL: hitl/portal-access.step.yaml"
+  - "HITL: hitl/create-pass-type-id.step.yaml"
+  - "HITL: hitl/create-pass-type-id-cert.step.yaml"
+  - "From task dir, install scaffold into $HOME/dev/ios-wallet via outputs/scripts/00-install-scaffold.sh."
+  - "Create/fill project `.env` via outputs/scripts/00-init-project-env.sh."
+  - "Run outputs/scripts/01-preflight.sh."
+  - "Generate placeholder images via outputs/scripts/10-generate-placeholder-images.sh."
+  - "Render pass.json via outputs/scripts/11-render-pass-json.sh."
+  - "Build unsigned pass via outputs/scripts/03-build-unsigned-pkpass.sh."
+  - "If portal access is blocked: stop here; record blocker; proceed unsigned-only until you join an enrolled team."
+  - "HITL: obtain Pass Type ID certificate (.p12) and WWDR cert; record sources in references/docs.md (only if you have access)."
+  - "Build signed pass via outputs/scripts/04-build-signed-pkpass.sh (only if you have access)."
+  - "Run outputs/scripts/99-run-tests.sh."
+  - "Update outputs/reports/setup-report.md with evidence (no secrets)."

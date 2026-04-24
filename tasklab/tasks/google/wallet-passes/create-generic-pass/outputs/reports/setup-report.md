@@ -54,3 +54,12 @@
 - permission/issuer blockers:
 - exact remediation:
 
+## Lessons learned (required)
+
+Record the “papercuts” so the next run is faster. Never paste secrets (tokens, private keys).
+
+- What was confusing / high-friction:
+- What failed (exact error text):
+- Root cause:
+- Fix (copy/paste commands, keep lines short):
+- What we should bake into TaskLab next time (links/scripts/validation/tests):

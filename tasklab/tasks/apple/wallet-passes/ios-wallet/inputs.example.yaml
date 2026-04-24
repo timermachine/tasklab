@@ -1,0 +1,10 @@
+project_root: "$HOME/dev/ios-wallet"
+
+# Required (for rendering pass.json)
+pass_type_identifier: "pass.com.example.my-pass"
+team_identifier: "ABCDE12345"
+
+# Optional (only needed for signed `.pkpass`)
+pass_p12_path: "/absolute/path/to/PassTypeID.p12"
+pass_p12_password: ""
+wwdr_cert_path: "/absolute/path/to/AppleWWDRCAG3.pem"

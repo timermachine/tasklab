@@ -23,6 +23,11 @@ Authoring checklist:
     - click path + exact field label
     - what to copy
     - where it goes (file + key)
+  - Prefer a session prelude + short commands:
+      TASK_DIR="tasklab/tasks/<service>/<task>"
+      PROJECT_ROOT="$HOME/dev/<your-project>"
+      cd /path/to/TaskLab && cd "$TASK_DIR"
+      bash outputs/scripts/<...>.sh --project-root "$PROJECT_ROOT"
 EOF
 }
 
@@ -101,8 +106,11 @@ copy_to_clipboard() {
 
 NEXT_COMMANDS=$(
   cat <<EOF
-# TODO(author): replace with your real next commands
-echo "Next commands go here"
+# TODO(author): replace with your real next commands (keep lines short)
+TASK_DIR="tasklab/tasks/<service>/<task-name>"
+PROJECT_ROOT="$HOME/dev/<your-project>"
+cd /path/to/TaskLab && cd "\$TASK_DIR"
+bash outputs/scripts/<next-step>.sh --project-root "\$PROJECT_ROOT"
 EOF
 )
 

@@ -1,0 +1,50 @@
+type: hitl_web_step
+id: create_pass_type_id_certificate
+title: Create/download Pass Type ID certificate (for signing)
+
+target:
+  service: apple-wallet-passkit
+  entry_url: https://developer.apple.com/account/resources/certificates/list
+
+doc_check:
+  docs:
+    - label: Building a pass (generate signing certificate)
+      url: https://developer.apple.com/documentation/walletpasses/building-a-pass
+    - label: WWDR intermediate certificates (Pass Type ID uses WWDR G4)
+      url: https://developer.apple.com/help/account/certificates/wwdr-intermediate-certificates
+
+ui_expectation:
+  page_name: Certificates, Identifiers & Profiles
+  expected_labels:
+    - Certificates
+    - Add
+    - Pass Type ID Certificate
+
+actions:
+  - kind: navigate
+    label: Open Certificates list
+    url: https://developer.apple.com/account/resources/certificates/list
+  - kind: click
+    label: Add (+) a certificate
+    locator_hint: Add / '+' button
+  - kind: note
+    label: Choose Pass Type ID Certificate
+    locator_hint: Certificate type selection
+    text: "Choose 'Pass Type ID Certificate' (or 'Pass Type ID with NFC' if you specifically need NFC) and continue."
+  - kind: note
+    label: Upload CSR and download certificate
+    locator_hint: CSR upload step
+    text: "Generate a CSR (Keychain Access) and upload it. Download the resulting certificate."
+  - kind: note
+    label: Export .p12 with private key
+    locator_hint: Keychain Access on your Mac
+    text: "Import the downloaded certificate into Keychain Access, then export as a `.p12` including the private key. Set `PASS_P12_PATH` and `PASS_P12_PASSWORD` in your project `.env`."
+  - kind: note
+    label: WWDR intermediate
+    locator_hint: Apple PKI / WWDR download page
+    text: "Download the appropriate WWDR intermediate certificate (commonly WWDR G4 for Pass Type ID) and store it as a PEM file. Set `WWDR_CERT_PATH` in your project `.env`."
+
+verify:
+  - kind: checkbox_confirmation
+    label: PASS_P12_PATH and WWDR_CERT_PATH are set (or blocker recorded)
+

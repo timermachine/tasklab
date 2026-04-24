@@ -21,10 +21,17 @@ const payload = {
 // Some APIs require the issuerId to be present in the class ID only; keep it as env for reporting.
 void issuerId;
 
-const created = await walletFetch(`/walletobjects/v1/genericClass`, {
-  method: 'POST',
-  body: JSON.stringify(payload),
-});
-
-console.log(JSON.stringify({ ok: true, classId: created?.id || classId }, null, 2));
-
+try {
+  const created = await walletFetch(`/walletobjects/v1/genericClass`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  console.log(JSON.stringify({ ok: true, classId: created?.id || classId }, null, 2));
+} catch (err) {
+  const msg = String(err?.message || err);
+  if (msg.includes(' 409 ') || msg.includes('ALREADY_EXISTS')) {
+    console.log(JSON.stringify({ ok: true, classId, note: 'already exists' }, null, 2));
+  } else {
+    throw err;
+  }
+}

@@ -39,6 +39,8 @@ For any step that involves copying values (credentials, IDs, URLs, tokens, conne
 - what must never be committed / shared
 - a one-line verification check
 
+If scripts `source` a repo-local `.env`, add a precheck to fail fast on common shell errors (especially unquoted spaces in values).
+
 ## Prefer scripts over copy/paste
 
 - If a value can be read from CLI output, provide a script/command that extracts it.
@@ -85,4 +87,3 @@ Always produce a “lessons learned” artifact capturing:
 - the gotchas encountered
 - the exact remediation commands
 - what should be baked into the next iteration of the task/template
-

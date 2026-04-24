@@ -99,7 +99,7 @@ echo "  - Create/download the key from: $SERVICE_ACCOUNTS_URL"
 echo "    - Service Accounts → pick the account → Keys → Add key → Create new key → JSON → download"
 echo
 echo "Then run:"
-echo "  bash $(dirname "$0")/00-init-project-env.sh --project-root \"$PROJECT_ROOT\""
+echo "  (see copied session prelude + next commands below)"
 
 open_url() {
   local url="$1"
@@ -127,21 +127,45 @@ copy_to_clipboard() {
   return 1
 }
 
+pretty_path() {
+  local p="$1"
+  if [[ -n "${HOME:-}" && "$p" == "$HOME"* ]]; then
+    printf '%s' "\$HOME${p#$HOME}"
+    return 0
+  fi
+  printf '%s' "$p"
+}
+
+PROJECT_ROOT_PRETTY="$(pretty_path "$PROJECT_ROOT")"
+
+SESSION_PRELUDE=$(
+  cat <<EOF
+TASK_DIR="tasklab/tasks/google/wallet-passes/create-generic-pass"
+PROJECT_ROOT="$PROJECT_ROOT_PRETTY"
+cd /Users/steve/dev/TaskLab && cd "\$TASK_DIR"
+EOF
+)
+
 NEXT_COMMANDS=$(
   cat <<EOF
-bash tasklab/tasks/google/wallet-passes/create-generic-pass/outputs/scripts/00-init-project-env.sh --project-root $PROJECT_ROOT
-bash tasklab/tasks/google/wallet-passes/create-generic-pass/outputs/scripts/01-preflight.sh --project-root $PROJECT_ROOT
+bash outputs/scripts/00-init-project-env.sh --project-root "\$PROJECT_ROOT"
+bash outputs/scripts/01-preflight.sh --project-root "\$PROJECT_ROOT"
+bash outputs/scripts/02b-smoke-wallet-api.sh --project-root "\$PROJECT_ROOT"
 EOF
 )
 
 if [[ "$NO_COPY" != "true" ]]; then
-  if copy_to_clipboard "$NEXT_COMMANDS"; then
+  if copy_to_clipboard "${SESSION_PRELUDE}"$'\n\n'"${NEXT_COMMANDS}"; then
     echo
-    echo "Copied next commands to clipboard:"
+    echo "Copied to clipboard (session prelude + next commands):"
+    echo "$SESSION_PRELUDE"
+    echo
     echo "$NEXT_COMMANDS"
   else
     echo
-    echo "Clipboard copy unavailable (no pbcopy/xclip/xsel). Next commands:"
+    echo "Clipboard copy unavailable (no pbcopy/xclip/xsel). Session prelude + next commands:"
+    echo "$SESSION_PRELUDE"
+    echo
     echo "$NEXT_COMMANDS"
   fi
 fi

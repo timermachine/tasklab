@@ -4,6 +4,7 @@ set -euo pipefail
 PROJECT_ROOT="."
 PROJECT_REF=""
 ENV_FILE=""
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
   cat >&2 <<'EOF'
@@ -46,13 +47,10 @@ if [[ -z "$ENV_FILE" ]]; then
 fi
 
 if [[ -z "$PROJECT_REF" && -f "$ENV_FILE" ]]; then
-  PROJECT_REF="$(
-    set -a
-    # shellcheck disable=SC1090
-    source "$ENV_FILE"
-    set +a
-    echo "${SUPABASE_PROJECT_REF:-}"
-  )"
+  # shellcheck disable=SC1091
+  source "$SCRIPT_DIR/_lib/env.sh"
+  tasklab_env_source "$ENV_FILE"
+  PROJECT_REF="${SUPABASE_PROJECT_REF:-}"
 fi
 
 if [[ -z "$PROJECT_REF" ]]; then

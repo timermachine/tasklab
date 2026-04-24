@@ -55,3 +55,13 @@
 - UI drift observed:
 - key model observed (`anon/service_role` vs `sb_publishable_/sb_secret_`):
 - follow-up work:
+
+## Lessons learned (required)
+
+Record the “papercuts” so the next run is faster. Never paste secrets (keys/tokens).
+
+- What was confusing / high-friction:
+- What failed (exact error text):
+- Root cause:
+- Fix (copy/paste commands, keep lines short):
+- What we should bake into TaskLab next time (links/scripts/validation/tests):

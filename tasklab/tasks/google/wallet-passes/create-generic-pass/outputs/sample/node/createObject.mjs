@@ -17,10 +17,17 @@ const payload = {
   subheader: { defaultValue: { language: 'en-US', value: 'Demo' } },
 };
 
-const created = await walletFetch(`/walletobjects/v1/genericObject`, {
-  method: 'POST',
-  body: JSON.stringify(payload),
-});
-
-console.log(JSON.stringify({ ok: true, objectId: created?.id || objectId }, null, 2));
-
+try {
+  const created = await walletFetch(`/walletobjects/v1/genericObject`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  console.log(JSON.stringify({ ok: true, objectId: created?.id || objectId }, null, 2));
+} catch (err) {
+  const msg = String(err?.message || err);
+  if (msg.includes(' 409 ') || msg.includes('ALREADY_EXISTS')) {
+    console.log(JSON.stringify({ ok: true, objectId, note: 'already exists' }, null, 2));
+  } else {
+    throw err;
+  }
+}

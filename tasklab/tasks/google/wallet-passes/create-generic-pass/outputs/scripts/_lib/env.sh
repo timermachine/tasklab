@@ -1,41 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+TASKLAB_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "$TASKLAB_ROOT" ]]; then
+  echo "Unable to locate TaskLab git root (required to source tasklab/lib/bash/env.sh)." >&2
+  exit 1
+fi
+
+# shellcheck disable=SC1091
+source "$TASKLAB_ROOT/tasklab/lib/bash/env.sh"
+
 tasklab_env_precheck() {
-  local env_file="$1"
-  [[ -f "$env_file" ]] || return 0
-
-  local checker="rg"
-  if ! command -v rg >/dev/null 2>&1; then
-    checker="grep"
-  fi
-
-  # Detect common footgun: unquoted values with spaces, e.g. PASS_TITLE=TaskLab Generic Pass
-  # This breaks `source .env` and yields confusing "command not found" errors.
-  local matches=""
-  if [[ "$checker" == "rg" ]]; then
-    matches="$(rg -n '^[A-Z0-9_]+=([^"'\''#][^#]*[[:space:]][^#]*)$' "$env_file" || true)"
-  else
-    # grep fallback: approximate the same check.
-    matches="$(grep -nE '^[A-Z0-9_]+=([^"'\''#][^#]*[[:space:]][^#]*)$' "$env_file" || true)"
-  fi
-
-  if [[ -n "$matches" ]]; then
-    echo "Invalid $env_file: unquoted value contains spaces:" >&2
-    echo "$matches" >&2
-    echo >&2
-    echo "Fix: wrap the value in quotes, e.g. PASS_TITLE=\"TaskLab Generic Pass\"." >&2
-    exit 1
-  fi
+  tasklab_core_env_precheck "$1"
 }
 
 tasklab_env_source() {
-  local env_file="$1"
-  tasklab_env_precheck "$env_file"
-  set -a
-  # shellcheck disable=SC1090
-  source "$env_file"
-  set +a
+  tasklab_core_env_source "$1"
 }
 
 tasklab_env_resolve_paths() {
