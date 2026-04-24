@@ -5,6 +5,8 @@ This package contains:
 - a generic setup-service template
 - one concrete task: `supabase/setup-project`
 - a second task: `google/wallet-passes/create-generic-pass`
+- a third task: `stripe/webhooks/setup-and-verify`
+- a fourth task: `apple/wallet-passes/ios-wallet`
 - executable output placeholders for scripts, SQL, code, tests, and reports
 
 ## Structure
@@ -74,3 +76,7 @@ bash tasklab/tasks/supabase/setup-project/outputs/scripts/99-run-tests.sh \
 5. Run scripts/tests under `outputs/`.
 6. Update `outputs/reports/setup-report.md`.
 7. Promote stable artifacts to TaskLib later.
+
+## Project direction (working doc)
+
+- `tasklab/BUSINESS_DIRECTION.md` (periodic alignment check; not task-level instructions)

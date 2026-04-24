@@ -140,16 +140,25 @@ PROJECT_ROOT_PRETTY="$(pretty_path "$PROJECT_ROOT")"
 
 SESSION_PRELUDE=$(
   cat <<EOF
+SESSION_FILE="/tmp/tasklab-session-google-wallet.sh"
+#
+# Surface: session (local shell)
+cat > "\$SESSION_FILE" <<'EOFSESSION'
 TASK_DIR="tasklab/tasks/google/wallet-passes/create-generic-pass"
 PROJECT_ROOT="$PROJECT_ROOT_PRETTY"
+EOFSESSION
+. "\$SESSION_FILE"
 cd /Users/steve/dev/TaskLab && cd "\$TASK_DIR"
 EOF
 )
 
 NEXT_COMMANDS=$(
   cat <<EOF
+# Surface: local_script + HITL prompts
 bash outputs/scripts/00-init-project-env.sh --project-root "\$PROJECT_ROOT"
+# Surface: local_script
 bash outputs/scripts/01-preflight.sh --project-root "\$PROJECT_ROOT"
+# Surface: REST API (Wallet Objects) + local_script
 bash outputs/scripts/02b-smoke-wallet-api.sh --project-root "\$PROJECT_ROOT"
 EOF
 )

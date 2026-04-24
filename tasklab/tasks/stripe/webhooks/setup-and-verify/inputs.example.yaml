@@ -1,0 +1,5 @@
+project_root: "$HOME/dev/my-app"
+webhook_path: "/webhook"
+webhook_port: 4242
+webhook_signing_secret: "whsec_..."
+

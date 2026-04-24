@@ -28,10 +28,14 @@ A task should define a concrete goal, current research, chosen execution surface
 - For command snippets intended to be copy/paste runnable (Warp, iTerm, etc.), keep lines short and single-line:
   - Prefer `PROJECT_ROOT="$HOME/..."` + `--project-root "$PROJECT_ROOT"` over long absolute paths like `/Users/<name>/...`.
   - Prefer `cd tasklab/tasks/<...>/<task> && bash outputs/scripts/<...>.sh ...` over long `bash tasklab/tasks/<...>/outputs/scripts/<...>.sh ...`.
-  - Prefer a “session prelude” shown once (e.g. `TASK_DIR=...`, `PROJECT_ROOT=...`, `cd "$TASK_DIR"`) and then omit repeated variable setup in later snippets.
+  - Prefer a “session prelude” shown once and then omit repeated variable setup in later snippets.
+    - Recommended: write a temporary session env file (e.g. `/tmp/tasklab-session-<service>.sh`) containing only shell vars like `TASK_DIR` and `PROJECT_ROOT`, then source it.
   - When printing commands from scripts, rewrite `$HOME`-prefixed paths as `$HOME/...` to avoid wrapped newlines breaking paste.
 - If a task uses a repo-local `.env`, scripts that `source` it must precheck for common shell footguns (unquoted spaces, etc.).
   - Prefer sourcing `tasklab/lib/bash/env.sh` via a small task-local wrapper `outputs/scripts/_lib/env.sh`.
+- Avoid “variable clobbering” in sourced libraries:
+  - Any file meant to be `source`d must not set generic global variables like `SCRIPT_DIR`, `PROJECT_ROOT`, `ENV_FILE`.
+  - Libraries should define functions only, or use `TASKLAB_...`-prefixed variables (or locals inside functions).
 - Keep global policy here. Do not duplicate it inside each task.
 - Avoid `<PLACEHOLDERS>` in commands when values can be sourced from `.env` or CLI output.
 

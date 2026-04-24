@@ -61,8 +61,14 @@ PROJECT_ROOT_PRETTY="$(pretty_path "$PROJECT_ROOT")"
 
 SESSION_PRELUDE=$(
   cat <<EOF
+SESSION_FILE="/tmp/tasklab-session-supabase.sh"
+#
+# Surface: session (local shell)
+cat > "\$SESSION_FILE" <<'EOFSESSION'
 TASK_DIR="tasklab/tasks/supabase/setup-project"
 PROJECT_ROOT="$PROJECT_ROOT_PRETTY"
+EOFSESSION
+. "\$SESSION_FILE"
 cd /Users/steve/dev/TaskLab && cd "\$TASK_DIR"
 EOF
 )
@@ -143,7 +149,9 @@ copy_to_clipboard() {
 
 NEXT_COMMANDS=$(
   cat <<EOF
+# Surface: CLI (supabase) or local_script (npx fallback)
 bash outputs/scripts/01-check-cli.sh --project-root "\$PROJECT_ROOT"
+# Surface: CLI (supabase) or local_script (npx fallback)
 bash outputs/scripts/02-login.sh --project-root "\$PROJECT_ROOT"
 EOF
 )

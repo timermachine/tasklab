@@ -26,7 +26,13 @@ Authoring checklist:
   - Prefer a session prelude + short commands:
       TASK_DIR="tasklab/tasks/<service>/<task>"
       PROJECT_ROOT="$HOME/dev/<your-project>"
-      cd /path/to/TaskLab && cd "$TASK_DIR"
+SESSION_FILE="/tmp/tasklab-session-<service>.sh"
+cat > "$SESSION_FILE" <<'EOF'
+TASK_DIR="tasklab/tasks/<service>/<task>"
+PROJECT_ROOT="$HOME/dev/<your-project>"
+EOF
+. "$SESSION_FILE"
+cd /path/to/TaskLab && cd "$TASK_DIR"
       bash outputs/scripts/<...>.sh --project-root "$PROJECT_ROOT"
 EOF
 }
@@ -107,9 +113,17 @@ copy_to_clipboard() {
 NEXT_COMMANDS=$(
   cat <<EOF
 # TODO(author): replace with your real next commands (keep lines short)
+SESSION_FILE="/tmp/tasklab-session-<service>.sh"
+#
+# Surface: session (local shell)
+cat > "\$SESSION_FILE" <<'EOFSESSION'
 TASK_DIR="tasklab/tasks/<service>/<task-name>"
 PROJECT_ROOT="$HOME/dev/<your-project>"
+EOFSESSION
+. "\$SESSION_FILE"
 cd /path/to/TaskLab && cd "\$TASK_DIR"
+#
+# Surface: local_script (+ optional HITL prompts)
 bash outputs/scripts/<next-step>.sh --project-root "\$PROJECT_ROOT"
 EOF
 )

@@ -1,0 +1,21 @@
+decision:
+  service: "stripe-webhooks"
+  chosen_surfaces:
+    - step: "webhook endpoint registration + secret retrieval"
+      surface: "hitl_web_or_cli"
+      reason: "Secret retrieval is UI-bound; CLI is fastest for local development."
+    - step: "signature verification + replay checks"
+      surface: "local_script"
+      reason: "Must verify raw bytes and implement deterministic checks in code."
+
+steps:
+  - "Review references; update research.md + references/checked-surfaces.yaml (verified_on + versions)."
+  - "Run outputs/scripts/00-hitl-links.sh (prints deep links + where-to-click for STRIPE_WEBHOOK_SECRET)."
+  - "Create/fill project `.env` via outputs/scripts/00-init-project-env.sh."
+  - "Run outputs/scripts/01-preflight.sh."
+  - "Run outputs/scripts/02-run-sample-server.sh (local webhook endpoint)."
+  - "If Stripe CLI is available: run outputs/scripts/03-stripe-listen.sh and copy the printed whsec_... into `.env`."
+  - "Trigger a test event (Stripe CLI `stripe trigger ...` or Dashboard test delivery)."
+  - "Run outputs/scripts/99-run-tests.sh (signature + replay smoke)."
+  - "Update outputs/reports/setup-report.md with evidence (no secrets)."
+

@@ -1,0 +1,11 @@
+{
+  "name": "tasklab-stripe-webhooks-sample",
+  "private": true,
+  "type": "module",
+  "description": "Minimal Stripe webhook signature + replay sample used by TaskLab scripts.",
+  "dependencies": {
+    "express": "^4.19.2",
+    "stripe": "^16.1.0"
+  }
+}
+

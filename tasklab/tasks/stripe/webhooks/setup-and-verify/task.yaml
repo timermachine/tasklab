@@ -1,0 +1,59 @@
+dsl_version: "tasklab.hitl.v0.1"
+
+task:
+  id: "stripe.webhooks.setup_and_verify"
+  title: "Stripe webhooks: initial setup + signature verification + replay defense"
+  summary: "Set up Stripe webhook delivery (CLI or Dashboard), implement signature verification, and avoid replay/raw-body pitfalls."
+  owner: "tasklab"
+  tags:
+    - "stripe"
+    - "webhooks"
+    - "security"
+    - "setup"
+    - "hitl"
+
+context:
+  product: "stripe-webhooks"
+  environment: "dev"
+  assumptions:
+    - "Operator has access to a Stripe account (test mode is fine)."
+    - "Operator has access to the target project and can run a local dev server."
+  prerequisites:
+    - "Node.js available locally (for sample server + signature checks)"
+    - "Browser access for Stripe Dashboard / Workbench"
+    - "Stripe CLI (optional but recommended for local testing)"
+
+inputs:
+  - name: "project_root"
+    type: "string"
+    required: true
+  - name: "webhook_path"
+    type: "string"
+    required: true
+  - name: "webhook_port"
+    type: "number"
+    required: true
+  - name: "webhook_signing_secret"
+    type: "string"
+    required: true
+
+outputs:
+  - name: "env_example_file"
+    type: "string"
+  - name: "webhook_secret_source"
+    type: "string"
+  - name: "smoke_result"
+    type: "string"
+
+completion:
+  success_criteria:
+    - "Webhook signing secret obtained (test or live) and stored in project `.env` (gitignored)."
+    - "Webhook endpoint verifies Stripe signatures using the raw request body."
+    - "Replay risk mitigations are documented and basic dedupe is in place (or explicitly deferred)."
+    - "Smoke test passes: valid signature accepted, invalid signature rejected, old timestamp rejected."
+  evidence_required:
+    - "docs checked (verified_on + URLs)"
+    - "surface decision (CLI vs Workbench/Dashboard)"
+    - "scripts run"
+    - "smoke output"
+

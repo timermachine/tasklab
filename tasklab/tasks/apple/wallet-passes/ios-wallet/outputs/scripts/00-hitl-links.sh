@@ -107,14 +107,21 @@ copy_to_clipboard() {
 
 SESSION_PRELUDE=$(
   cat <<'EOF'
+SESSION_FILE="/tmp/tasklab-session-apple-wallet.sh"
+#
+# Surface: session (local shell)
+cat > "$SESSION_FILE" <<'EOFSESSION'
 TASK_DIR="tasklab/tasks/apple/wallet-passes/ios-wallet"
 PROJECT_ROOT="$HOME/dev/ios-wallet"
+EOFSESSION
+. "$SESSION_FILE"
 cd /Users/steve/dev/TaskLab && cd "$TASK_DIR"
 EOF
 )
 
 NEXT_COMMANDS=$(
   cat <<'EOF'
+# Surface: local_script (requires cert/key material)
 bash outputs/scripts/04-build-signed-pkpass.sh --project-root "$PROJECT_ROOT"
 EOF
 )
