@@ -91,6 +91,7 @@ echo "- ISSUER_ID= (numeric string)"
 echo "  - Open: $ISSUER_CONSOLE_URL/"
 echo "  - Select the correct business/issuer."
 echo "  - Look for 'Issuer ID' on the dashboard/settings. If you can't find it, use console search for 'issuer' or 'ID'."
+echo "  - Sanity check: it should be digits only and usually <= 19 digits (int64)."
 echo
 echo "- GOOGLE_APPLICATION_CREDENTIALS= (absolute file path on your machine)"
 echo "  - This is the path to the downloaded service account JSON key file, e.g. /Users/<you>/Downloads/tasklab-wallet.key.json"

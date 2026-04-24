@@ -24,6 +24,7 @@ steps:
   - "Run outputs/scripts/00-init-project-env.sh (creates/fills project `.env`, copy-safe)."
   - "Run outputs/scripts/01-preflight.sh"
   - "Run outputs/scripts/02-get-access-token.sh"
+  - "Run outputs/scripts/02b-smoke-wallet-api.sh (verify issuer access via REST)."
   - "Run outputs/scripts/03-create-class.sh"
   - "Run outputs/scripts/04-create-object.sh"
   - "Run outputs/scripts/05-generate-save-url.sh"

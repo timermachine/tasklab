@@ -57,6 +57,17 @@ tasklab_env_validate() {
     exit 1
   fi
 
+  if [[ -n "${ISSUER_ID:-}" ]]; then
+    # Wallet Objects REST expects issuer resource id as an int64. If the copied value is longer than
+    # 19 digits it's almost certainly the wrong id (common copy/paste footgun).
+    local len="${#ISSUER_ID}"
+    if (( len > 19 )); then
+      echo "Invalid ISSUER_ID in $env_file: too many digits for an int64 (len=$len): $ISSUER_ID" >&2
+      echo "Re-copy 'Issuer ID' from https://pay.google.com/business/console/ (should be a <=19 digit number)." >&2
+      exit 1
+    fi
+  fi
+
   if [[ -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" && "${GOOGLE_APPLICATION_CREDENTIALS:0:1}" != "/" ]]; then
     echo "Invalid GOOGLE_APPLICATION_CREDENTIALS in $env_file: expected an absolute path, got: $GOOGLE_APPLICATION_CREDENTIALS" >&2
     echo "Set it to an absolute path (e.g. /Users/<you>/Downloads/key.json) or a path relative to --project-root." >&2

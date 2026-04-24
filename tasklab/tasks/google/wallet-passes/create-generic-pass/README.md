@@ -53,6 +53,7 @@ If you get stuck on “where do I find the values?” the `00-hitl-links.sh` out
 ```bash
 bash tasklab/tasks/google/wallet-passes/create-generic-pass/outputs/scripts/01-preflight.sh --project-root /path/to/your/project
 bash tasklab/tasks/google/wallet-passes/create-generic-pass/outputs/scripts/02-get-access-token.sh --project-root /path/to/your/project
+bash tasklab/tasks/google/wallet-passes/create-generic-pass/outputs/scripts/02b-smoke-wallet-api.sh --project-root /path/to/your/project
 bash tasklab/tasks/google/wallet-passes/create-generic-pass/outputs/scripts/03-create-class.sh --project-root /path/to/your/project
 bash tasklab/tasks/google/wallet-passes/create-generic-pass/outputs/scripts/04-create-object.sh --project-root /path/to/your/project
 bash tasklab/tasks/google/wallet-passes/create-generic-pass/outputs/scripts/05-generate-save-url.sh --project-root /path/to/your/project
