@@ -1,0 +1,259 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { spawnSync, execSync } = require('node:child_process');
+
+function die(message, code = 1) {
+  process.stderr.write(`${message}\n`);
+  process.exit(code);
+}
+
+function usage() {
+  const lines = [
+    'Usage:',
+    '  runbook list [--all]',
+    '  runbook <name> for <project-root> [--open] [--ask-open] [--no-copy]',
+    '  runbook <name> --project-root <project-root> [--open] [--ask-open] [--no-copy]',
+    '',
+    'Examples:',
+    '  runbook list',
+    '  runbook stripe-integration for ~/dev/stripe-integration',
+    '  runbook stripe-webhooks --project-root ~/dev/my-app --open',
+  ];
+  process.stdout.write(`${lines.join('\n')}\n`);
+}
+
+function getRepoRoot() {
+  try {
+    const out = execSync('git rev-parse --show-toplevel', { stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString('utf8')
+      .trim();
+    if (out) return out;
+  } catch {
+    // ignore
+  }
+  return process.cwd();
+}
+
+function expandHome(p) {
+  if (!p) return p;
+  if (p === '~') return os.homedir();
+  if (p.startsWith('~/')) return path.join(os.homedir(), p.slice(2));
+  return p;
+}
+
+function stripQuotes(s) {
+  if (!s) return s;
+  const t = s.trim();
+  if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) return t.slice(1, -1);
+  return t;
+}
+
+function readJsonIfExists(filePath) {
+  if (!fs.existsSync(filePath)) return null;
+  const raw = fs.readFileSync(filePath, 'utf8');
+  return JSON.parse(raw);
+}
+
+function walkForTaskYamls(rootDir) {
+  /** @type {string[]} */
+  const results = [];
+  /** @type {string[]} */
+  const stack = [rootDir];
+  while (stack.length) {
+    const dir = stack.pop();
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const e of entries) {
+      if (e.name.startsWith('.')) continue;
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name === 'node_modules') continue;
+        stack.push(p);
+      } else if (e.isFile() && e.name === 'task.yaml') {
+        results.push(p);
+      }
+    }
+  }
+  return results.sort();
+}
+
+function parseTaskYamlBasics(taskYamlPath) {
+  const raw = fs.readFileSync(taskYamlPath, 'utf8');
+  const lines = raw.split(/\r?\n/);
+  let inTaskBlock = false;
+  let id = '';
+  let title = '';
+  for (const line of lines) {
+    if (!inTaskBlock) {
+      if (line.trim() === 'task:') inTaskBlock = true;
+      continue;
+    }
+    if (/^[A-Za-z_]+:\s*$/.test(line) && !/^\s+/.test(line)) break; // next top-level section
+    const mId = line.match(/^\s*id:\s*(.+?)\s*$/);
+    if (mId && !id) id = stripQuotes(mId[1]);
+    const mTitle = line.match(/^\s*title:\s*(.+?)\s*$/);
+    if (mTitle && !title) title = stripQuotes(mTitle[1]);
+    if (id && title) break;
+  }
+  return { id, title };
+}
+
+function loadRunbooks(repoRoot) {
+  const runbooksFile = path.join(repoRoot, 'tasklab', 'runbooks.json');
+  /** @type {{name:string, task_dir:string, summary?:string}[]} */
+  const configured = readJsonIfExists(runbooksFile) || [];
+  const byName = new Map();
+  for (const rb of configured) {
+    if (!rb?.name || !rb?.task_dir) continue;
+    byName.set(String(rb.name), { ...rb, name: String(rb.name), task_dir: String(rb.task_dir) });
+  }
+  return { configured: Array.from(byName.values()), byName };
+}
+
+function listRunbooks({ repoRoot, all }) {
+  const { configured } = loadRunbooks(repoRoot);
+  process.stdout.write('Runbooks:\n');
+  for (const rb of configured) {
+    const taskYaml = path.join(repoRoot, rb.task_dir, 'task.yaml');
+    let meta = { id: '', title: '' };
+    if (fs.existsSync(taskYaml)) {
+      try {
+        meta = parseTaskYamlBasics(taskYaml);
+      } catch {
+        // ignore
+      }
+    }
+    const title = meta.title || rb.summary || '';
+    const suffix = title ? ` — ${title}` : '';
+    process.stdout.write(`- ${rb.name} (${rb.task_dir})${suffix}\n`);
+  }
+
+  if (!all) {
+    process.stdout.write('\nTip: `runbook list --all` shows every discovered task.yaml.\n');
+    return;
+  }
+
+  const tasksRoot = path.join(repoRoot, 'tasklab', 'tasks');
+  if (!fs.existsSync(tasksRoot)) return;
+
+  process.stdout.write('\nAll discovered tasks:\n');
+  for (const taskYaml of walkForTaskYamls(tasksRoot)) {
+    const rel = path.relative(repoRoot, path.dirname(taskYaml));
+    const meta = parseTaskYamlBasics(taskYaml);
+    const label = meta.title ? ` — ${meta.title}` : '';
+    const id = meta.id ? ` (${meta.id})` : '';
+    process.stdout.write(`- ${rel}${id}${label}\n`);
+  }
+}
+
+function runbookEntrypoint({ repoRoot, name, projectRoot, passthroughArgs }) {
+  const { byName } = loadRunbooks(repoRoot);
+  const rb = byName.get(name);
+  if (!rb) {
+    die(`Unknown runbook: ${name}\nTry: runbook list`);
+  }
+
+  const taskDirAbs = path.join(repoRoot, rb.task_dir);
+  if (!fs.existsSync(taskDirAbs)) die(`Missing task dir: ${rb.task_dir}`);
+
+  const hitl = path.join(taskDirAbs, 'outputs', 'scripts', '00-hitl-links.sh');
+  if (!fs.existsSync(hitl)) {
+    process.stdout.write(`Runbook resolved to: ${rb.task_dir}\n`);
+    process.stdout.write(`No entrypoint script found at: ${path.relative(repoRoot, hitl)}\n`);
+    process.stdout.write(`Open: ${path.relative(repoRoot, path.join(taskDirAbs, 'README.md'))}\n`);
+    return;
+  }
+
+  const args = [hitl, '--project-root', projectRoot, ...passthroughArgs];
+  const r = spawnSync('bash', args, { cwd: repoRoot, stdio: 'inherit' });
+  if (r.error) die(`Failed to run bash: ${r.error.message}`);
+  process.exit(r.status ?? 1);
+}
+
+function parseArgs(argv) {
+  const args = [...argv];
+  const passthroughArgs = [];
+  let projectRoot = '';
+  let open = false;
+  let askOpen = false;
+  let noCopy = false;
+  let all = false;
+
+  function takeFlag(flag) {
+    const idx = args.indexOf(flag);
+    if (idx === -1) return null;
+    args.splice(idx, 1);
+    return true;
+  }
+
+  if (takeFlag('--help') || takeFlag('-h')) return { kind: 'help' };
+  if (takeFlag('--open')) open = true;
+  if (takeFlag('--ask-open')) askOpen = true;
+  if (takeFlag('--no-copy')) noCopy = true;
+  if (takeFlag('--all')) all = true;
+
+  const prIdx = args.indexOf('--project-root');
+  if (prIdx !== -1) {
+    projectRoot = args[prIdx + 1] || '';
+    args.splice(prIdx, 2);
+  }
+
+  if (open) passthroughArgs.push('--open');
+  if (askOpen) passthroughArgs.push('--ask-open');
+  if (noCopy) passthroughArgs.push('--no-copy');
+
+  if (!args.length) return { kind: 'help' };
+
+  if (args[0] === 'list') return { kind: 'list', all };
+
+  const name = args[0];
+  if (!name) return { kind: 'help' };
+
+  if (!projectRoot) {
+    // support: runbook <name> for <project-root>
+    if (args[1] === 'for' && args[2]) {
+      projectRoot = args.slice(2).join(' ');
+    }
+  }
+
+  if (!projectRoot) die('Missing project root.\nTry: runbook <name> for ~/dev/my-app');
+
+  projectRoot = expandHome(projectRoot);
+  projectRoot = path.resolve(projectRoot);
+  return { kind: 'run', name, projectRoot, passthroughArgs };
+}
+
+function main() {
+  const repoRoot = getRepoRoot();
+  const parsed = parseArgs(process.argv.slice(2));
+
+  if (parsed.kind === 'help') {
+    usage();
+    return;
+  }
+  if (parsed.kind === 'list') {
+    listRunbooks({ repoRoot, all: parsed.all });
+    return;
+  }
+  if (parsed.kind === 'run') {
+    runbookEntrypoint({
+      repoRoot,
+      name: parsed.name,
+      projectRoot: parsed.projectRoot,
+      passthroughArgs: parsed.passthroughArgs,
+    });
+    return;
+  }
+  usage();
+}
+
+main();
+

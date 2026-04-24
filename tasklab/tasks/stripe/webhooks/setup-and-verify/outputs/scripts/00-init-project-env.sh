@@ -55,9 +55,10 @@ set_kv() {
   if [[ -z "$value" || "$value" =~ [[:space:]] || "$value" =~ [\'\"\\\`\$#] ]]; then
     rendered="'$(printf '%s' "$value" | perl -pe "s/'/'\\\"'\\\"'/g")'"
   fi
-  local escaped
-  escaped="$(printf '%s' "$rendered" | perl -pe 's/\\/\\\\/g; s/&/\\&/g')"
-  perl -0pi -e "s/^${key}=.*\$/${key}=${escaped}/m" "$ENV_FILE"
+
+  # Avoid delimiter/escaping footguns (e.g. STRIPE_WEBHOOK_PATH=/webhook) by passing the
+  # replacement via environment variables instead of embedding it into the s/// literal.
+  KEY="$key" VAL="$rendered" perl -0777 -i -pe 's/^\Q$ENV{KEY}\E=.*$/$ENV{KEY}=$ENV{VAL}/m' "$ENV_FILE"
 }
 
 prompt() {

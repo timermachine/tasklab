@@ -1,0 +1,15 @@
+service: stripe
+verified_on: "YYYY-MM-DD"
+tool_versions:
+  node: ""
+  npm: ""
+  stripe_cli: ""
+surfaces_checked:
+  - official_docs
+  - dashboard
+  - stripe_cli_optional
+notes:
+  - "Record where API keys were retrieved (Dashboard test mode vs live mode)."
+  - "Record how STRIPE_PRICE_ID was created (Dashboard vs CLI)."
+  - "Record where the webhook signing secret was retrieved (CLI listen vs Dashboard endpoint/destination)."
+

@@ -1,0 +1,51 @@
+type: hitl_web_step
+id: configure_webhook_destination
+title: Configure a webhook destination/endpoint and capture STRIPE_WEBHOOK_SECRET
+
+target:
+  service: stripe
+  entry_url: https://dashboard.stripe.com
+
+doc_check:
+  docs:
+    - label: Webhooks
+      url: https://docs.stripe.com/webhooks
+    - label: Receive/test webhooks
+      url: https://docs.stripe.com/webhooks/test
+
+ui_expectation:
+  page_name: Webhooks (test mode)
+  expected_labels:
+    - Webhooks
+    - Add endpoint
+    - Signing secret
+
+actions:
+  - kind: navigate
+    label: Open Stripe Dashboard
+    url: https://dashboard.stripe.com
+  - kind: note
+    label: CLI-first recommendation
+    locator_hint: N/A
+    text: "For localhost, prefer Stripe CLI `stripe listen --forward-to http://localhost:<port><path>` and copy the printed `whsec_...`."
+  - kind: note
+    label: Dashboard fallback
+    locator_hint: Webhooks UI
+    text: "If you must use Dashboard/Workbench, create/select the endpoint/destination and reveal its Signing secret (whsec_...)."
+  - kind: copy
+    label: Copy signing secret (whsec_...)
+    locator_hint: Endpoint/Destination details (Signing secret)
+  - kind: note
+    label: Persist value (copy once)
+    locator_hint: Your local project root
+    text: "Paste into your project `.env` (gitignored): STRIPE_WEBHOOK_SECRET=whsec_... ."
+
+clipboard:
+  - label: Webhook signing secret
+    value_from: stripe_webhook_secret
+    sensitive: true
+
+verify:
+  - kind: checkbox_confirmation
+    label: "Webhook secret recorded in project `.env` (gitignored) and evidence recorded in `outputs/reports/setup-report.md`"
+

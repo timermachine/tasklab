@@ -9,12 +9,8 @@ This TaskLab task helps you set up Stripe webhook delivery and implement **corre
 cd /Users/steve/dev/TaskLab
 
 # Surface: session env (temporary)
-SESSION_FILE="/tmp/tasklab-session-stripe-webhooks.sh"
-cat > "$SESSION_FILE" <<'EOFSESSION'
-TASK_DIR="tasklab/tasks/stripe/webhooks/setup-and-verify"
-PROJECT_ROOT="$HOME/dev/my-app"
-EOFSESSION
-. "$SESSION_FILE"
+bash tasklab/tasks/stripe/webhooks/setup-and-verify/outputs/scripts/00-temporary-session-env.sh --project-root "$HOME/dev/my-app"
+. /tmp/tasklab-session-stripe-webhooks.sh
 
 # Surface: local_script
 cd "$TASK_DIR"
@@ -37,6 +33,8 @@ cd "$TASK_DIR"
 # Surface: local_script + HITL links
 bash outputs/scripts/00-hitl-links.sh --project-root "$PROJECT_ROOT"
 ```
+
+This writes a temporary session env file plus runnable “next step” scripts under `/tmp` and copies short run lines to your clipboard (avoids long copy/paste blocks).
 
 4) Create/fill your project `.env` (gitignored):
 

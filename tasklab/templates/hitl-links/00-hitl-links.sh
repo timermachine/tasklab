@@ -6,6 +6,13 @@ ENV_FILE=""
 OPEN_LINKS=false
 ASK_OPEN=false
 NO_COPY=false
+TASKLAB_TEMPLATE_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TASKLAB_ROOT="$(cd "$TASKLAB_TEMPLATE_SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || true)"
+TASK_DIR_REL="$(cd "$TASKLAB_TEMPLATE_SCRIPT_DIR" && git rev-parse --show-prefix 2>/dev/null || true)"
+TASK_DIR="${TASK_DIR_REL%outputs/scripts/}"
+if [[ -z "$TASK_DIR" || "$TASK_DIR" == "$TASK_DIR_REL" ]]; then
+  TASK_DIR="tasklab/tasks/<service>/<task-name>"
+fi
 
 usage() {
   cat >&2 <<'EOF'
@@ -23,17 +30,7 @@ Authoring checklist:
     - click path + exact field label
     - what to copy
     - where it goes (file + key)
-  - Prefer a session prelude + short commands:
-      TASK_DIR="tasklab/tasks/<service>/<task>"
-      PROJECT_ROOT="$HOME/dev/<your-project>"
-SESSION_FILE="/tmp/tasklab-session-<service>.sh"
-cat > "$SESSION_FILE" <<'EOF'
-TASK_DIR="tasklab/tasks/<service>/<task>"
-PROJECT_ROOT="$HOME/dev/<your-project>"
-EOF
-. "$SESSION_FILE"
-cd /path/to/TaskLab && cd "$TASK_DIR"
-      bash outputs/scripts/<...>.sh --project-root "$PROJECT_ROOT"
+  - Avoid long copy/paste blocks: generate runnable files under /tmp and print 1–2 short commands.
 EOF
 }
 
@@ -110,31 +107,56 @@ copy_to_clipboard() {
   return 1
 }
 
-NEXT_COMMANDS=$(
-  cat <<EOF
-# TODO(author): replace with your real next commands (keep lines short)
-SESSION_FILE="/tmp/tasklab-session-<service>.sh"
-#
-# Surface: session (local shell)
-cat > "\$SESSION_FILE" <<'EOFSESSION'
-TASK_DIR="tasklab/tasks/<service>/<task-name>"
-PROJECT_ROOT="$HOME/dev/<your-project>"
-EOFSESSION
-. "\$SESSION_FILE"
-cd /path/to/TaskLab && cd "\$TASK_DIR"
-#
+SESSION_FILE="/tmp/tasklab-session.sh"
+NEXT_FILE="/tmp/tasklab-next.sh"
+
+umask 077
+
+cat > "$SESSION_FILE" <<EOF
+TASK_DIR="$TASK_DIR"
+PROJECT_ROOT="$PROJECT_ROOT"
+EOF
+
+cat > "$NEXT_FILE" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Surface: session env (temporary)
+. "$SESSION_FILE"
+
+# Surface: local_script
+cd "${TASKLAB_ROOT:-/path/to/TaskLab}" && cd "\$TASK_DIR"
+
 # Surface: local_script (+ optional HITL prompts)
-bash outputs/scripts/<next-step>.sh --project-root "\$PROJECT_ROOT"
+# TODO(author): replace with your real next commands
+echo "TODO: run task steps for \$PROJECT_ROOT"
+EOF
+chmod 700 "$NEXT_FILE"
+
+RUN_LINES=$(
+  cat <<EOF
+# Surface: session env (temporary)
+. "$SESSION_FILE"
+
+# Surface: local_script
+bash "$NEXT_FILE"
 EOF
 )
 
+echo
+echo "Temporary session env + runnable script:"
+echo "- Session env: $SESSION_FILE"
+echo "- Next script: $NEXT_FILE"
+
 if [[ "$NO_COPY" != "true" ]]; then
-  if copy_to_clipboard "$NEXT_COMMANDS"; then
-    echo "Copied next commands to clipboard:"
-    echo "$NEXT_COMMANDS"
+  if copy_to_clipboard "$RUN_LINES"; then
+    echo
+    echo "Copied to clipboard (short run lines):"
+    echo "$RUN_LINES"
   else
-    echo "Clipboard copy unavailable (no pbcopy/xclip/xsel). Next commands:"
-    echo "$NEXT_COMMANDS"
+    echo
+    echo "Clipboard copy unavailable (no pbcopy/xclip/xsel). Short run lines:"
+    echo "$RUN_LINES"
   fi
 fi
 

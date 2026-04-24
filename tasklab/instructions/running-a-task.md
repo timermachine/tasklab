@@ -10,6 +10,11 @@ Tasks live under:
 
 - `tasklab/tasks/<service>/<task-name>/`
 
+If you just want a quick index + a guided entrypoint, use the runbook helper:
+
+- List: `node ./runbook list`
+- Run: `node ./runbook <name> for <project-root>`
+
 Start by opening:
 
 - `task.yaml` (goal, scope, inputs, outputs, completion criteria)

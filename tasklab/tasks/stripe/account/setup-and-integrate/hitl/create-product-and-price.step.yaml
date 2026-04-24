@@ -1,0 +1,54 @@
+type: hitl_web_step
+id: create_product_and_price
+title: Create a test Product + Price and capture STRIPE_PRICE_ID
+
+target:
+  service: stripe
+  entry_url: https://dashboard.stripe.com
+
+doc_check:
+  docs:
+    - label: Products and prices
+      url: https://docs.stripe.com/products-prices
+
+ui_expectation:
+  page_name: Products (test mode)
+  expected_labels:
+    - Products
+    - Add product
+    - Price
+
+actions:
+  - kind: navigate
+    label: Open Stripe Dashboard
+    url: https://dashboard.stripe.com
+  - kind: note
+    label: Switch to test mode
+    locator_hint: Mode toggle (test vs live)
+    text: "Enable test mode before creating the Product/Price so you get a test-only Price ID."
+  - kind: click
+    label: Open Products
+    locator_hint: "Products" in left nav (or search)
+  - kind: click
+    label: Add a product
+    locator_hint: "Add product"
+  - kind: note
+    label: Configure product + price
+    locator_hint: Product creation form
+    text: "Create a one-time price (e.g. USD 10.00) suitable for Checkout payment mode."
+  - kind: copy
+    label: Copy Price ID (price_...)
+    locator_hint: Price details pane (Price ID)
+  - kind: note
+    label: Persist value (copy once)
+    locator_hint: Your local project root
+    text: "Paste into your project `.env` (gitignored): STRIPE_PRICE_ID=price_... ."
+
+clipboard:
+  - label: Price ID
+    value_from: stripe_price_id
+
+verify:
+  - kind: checkbox_confirmation
+    label: "Price ID recorded in project `.env` (gitignored) and evidence recorded in `outputs/reports/setup-report.md`"
+

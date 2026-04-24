@@ -7,6 +7,7 @@ This package contains:
 - a second task: `google/wallet-passes/create-generic-pass`
 - a third task: `stripe/webhooks/setup-and-verify`
 - a fourth task: `apple/wallet-passes/ios-wallet`
+- a fifth task: `stripe/account/setup-and-integrate`
 - executable output placeholders for scripts, SQL, code, tests, and reports
 
 ## Structure
@@ -51,6 +52,28 @@ bash tasklab/tasks/supabase/setup-project/outputs/scripts/00-install-scaffold.sh
 bash tasklab/tasks/supabase/setup-project/outputs/scripts/99-run-tests.sh \
   --project-root tasklab/sample-projects/supabase-edge \
   --template edge
+```
+
+## Runbooks (CLI)
+
+List available runbooks:
+
+```bash
+cd TaskLab
+node ./runbook list
+```
+
+Run a runbook against a target project directory:
+
+```bash
+node ./runbook stripe-integration for ~/dev/stripe-integration
+```
+
+Tip: if you want to run it as `runbook ...`, make it executable once:
+
+```bash
+chmod +x ./runbook
+./runbook stripe-integration for ~/dev/stripe-integration
 ```
 
 ## Quickstart: author a new task

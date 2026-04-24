@@ -85,6 +85,10 @@ echo
 echo "- STRIPE_WEBHOOK_PORT= and STRIPE_WEBHOOK_PATH="
 echo "  - Choose where your local dev server receives forwarded webhooks (defaults: 4242 + /webhook)."
 
+echo
+echo "Next (human note): run this script once per session to regenerate the /tmp helper files it mentions below."
+echo "It’s the copy/paste-safe entrypoint: it prints the deep links + writes runnable step scripts under /tmp."
+
 copy_to_clipboard() {
   local text="$1"
   if command -v pbcopy >/dev/null 2>&1; then
@@ -102,49 +106,113 @@ copy_to_clipboard() {
   return 1
 }
 
-SESSION_PRELUDE=$(
-  cat <<EOF
 SESSION_FILE="/tmp/tasklab-session-stripe-webhooks.sh"
-# Surface: session (local shell)
-cat > "\$SESSION_FILE" <<'EOFSESSION'
-TASK_DIR="tasklab/tasks/stripe/webhooks/setup-and-verify"
-PROJECT_ROOT="$PROJECT_ROOT_PRETTY"
-EOFSESSION
-. "\$SESSION_FILE"
-cd "$TASKLAB_ROOT_PRETTY" && cd "\$TASK_DIR"
-EOF
-)
+SETUP_FILE="/tmp/tasklab-next-stripe-webhooks-setup.sh"
+SERVER_FILE="/tmp/tasklab-next-stripe-webhooks-server.sh"
+LISTEN_FILE="/tmp/tasklab-next-stripe-webhooks-listen.sh"
+TESTS_FILE="/tmp/tasklab-next-stripe-webhooks-tests.sh"
 
-NEXT_COMMANDS=$(
-  cat <<'EOF'
-# Surface: local_script + HITL prompts
-bash outputs/scripts/00-init-project-env.sh --project-root "$PROJECT_ROOT"
+echo
+echo "Temporary session env + runnable scripts (avoids copy/paste line-break issues):"
+echo "- Session env: $SESSION_FILE"
+echo "- Setup:       $SETUP_FILE"
+echo "- Server:      $SERVER_FILE"
+echo "- Stripe CLI:  $LISTEN_FILE"
+echo "- Tests:       $TESTS_FILE"
+
+umask 077
+
+# Surface: session env (temporary)
+bash "$TASKLAB_STRIPE_SCRIPT_DIR/00-temporary-session-env.sh" --project-root "$PROJECT_ROOT"
+
+cat > "$SETUP_FILE" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Surface: session env (temporary)
+. "$SESSION_FILE"
+
 # Surface: local_script
-bash outputs/scripts/01-preflight.sh --project-root "$PROJECT_ROOT"
+cd "$TASKLAB_ROOT" && cd "\$TASK_DIR"
+
+if [[ ! -f "\$PROJECT_ROOT/.env" ]]; then
+  # Surface: local_script + HITL prompts
+  bash outputs/scripts/00-init-project-env.sh --project-root "\$PROJECT_ROOT"
+fi
+
+# Surface: local_script
+bash outputs/scripts/01-preflight.sh --project-root "\$PROJECT_ROOT"
+EOF
+
+cat > "$SERVER_FILE" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Surface: session env (temporary)
+. "$SESSION_FILE"
+
 # Surface: local_script (server)
-bash outputs/scripts/02-run-sample-server.sh --project-root "$PROJECT_ROOT"
+cd "$TASKLAB_ROOT" && cd "\$TASK_DIR"
+bash outputs/scripts/02-run-sample-server.sh --project-root "\$PROJECT_ROOT"
+EOF
+
+cat > "$LISTEN_FILE" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Surface: session env (temporary)
+. "$SESSION_FILE"
+
 # Surface: CLI (Stripe)
-bash outputs/scripts/03-stripe-listen.sh --project-root "$PROJECT_ROOT"
+cd "$TASKLAB_ROOT" && cd "\$TASK_DIR"
+bash outputs/scripts/03-stripe-listen.sh --project-root "\$PROJECT_ROOT"
+EOF
+
+cat > "$TESTS_FILE" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Surface: session env (temporary)
+. "$SESSION_FILE"
+
+# Surface: local_script
+cd "$TASKLAB_ROOT" && cd "\$TASK_DIR"
+bash outputs/scripts/99-run-tests.sh --project-root "\$PROJECT_ROOT"
+EOF
+
+chmod 700 "$SETUP_FILE" "$SERVER_FILE" "$LISTEN_FILE" "$TESTS_FILE"
+
+RUN_LINES=$(
+  cat <<EOF
+# Surface: session env (temporary)
+. "$SESSION_FILE"
+
+# Surface: local_script
+bash "$SETUP_FILE"
+
+# Surface: local_script (server)  (run in terminal A)
+bash "$SERVER_FILE"
+
+# Surface: CLI (Stripe)  (run in terminal B)
+bash "$LISTEN_FILE"
+
 # Surface: CLI (Stripe)
 # stripe trigger payment_intent.succeeded
+
 # Surface: local_script
-bash outputs/scripts/99-run-tests.sh --project-root "$PROJECT_ROOT"
+bash "$TESTS_FILE"
 EOF
 )
 
 if [[ "$NO_COPY" != "true" ]]; then
-  if copy_to_clipboard "${SESSION_PRELUDE}"$'\n\n'"${NEXT_COMMANDS}"; then
+  if copy_to_clipboard "$RUN_LINES"; then
     echo
-    echo "Copied to clipboard (session prelude + next commands):"
-    echo "$SESSION_PRELUDE"
-    echo
-    echo "$NEXT_COMMANDS"
+    echo "Copied to clipboard (short run lines):"
+    echo "$RUN_LINES"
   else
     echo
-    echo "Clipboard copy unavailable (no pbcopy/xclip/xsel). Session prelude + next commands:"
-    echo "$SESSION_PRELUDE"
-    echo
-    echo "$NEXT_COMMANDS"
+    echo "Clipboard copy unavailable (no pbcopy/xclip/xsel). Short run lines:"
+    echo "$RUN_LINES"
   fi
 fi
 

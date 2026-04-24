@@ -4,6 +4,7 @@ This document is a **periodic alignment check**, not task-level instructions.
 
 - Use it when adding new templates, promoting tasks to TaskLib, or when TaskLab starts drifting into “generic automation”.
 - Do **not** treat this as a checklist to paste into every task.
+- For the raw scratchpad that feeds this doc (not for task execution), see `tasklab/business_direction_brainstorm.md`.
 
 ## 1) Core thesis
 
@@ -25,7 +26,7 @@ Note on current repo state:
 
 ### Silent failure in AI + interface systems
 
-AI-generated solutions often *look* correct but fail in edge cases. Interfaces (APIs, CLIs, dashboards) are:
+AI-generated solutions often _look_ correct but fail in edge cases. Interfaces (APIs, CLIs, dashboards) are:
 
 - versioned
 - inconsistent
@@ -89,6 +90,32 @@ Every solved task should become (when worth keeping):
 
 TaskLab is valuable immediately as a **personal execution accelerator**.
 Prefer shipping a task that works end-to-end (with crisp evidence) over building meta-features.
+
+## 3.6 Portable HITL governance patterns (AI + human workflows)
+
+Some TaskLab patterns are broadly reusable as a **governance layer** for any AI+HITL workflow (even outside TaskLab’s folder/file structure). They are “above” an AI’s usual plan/execute loop because they reduce ambiguity and silent failure at trust boundaries.
+
+Reusable almost everywhere:
+
+- **Fail closed on drift:** when external UI/docs are volatile, do not guess; require a verified-on note + exact URLs/labels.
+- **Copy-once → persist:** store IDs/URLs/keys once (usually a gitignored `.env`) and have all steps/scripts read from it.
+- **Preflight before action:** check tool availability, auth state, permissions, ports, and OS-specific differences.
+- **Copy-safe HITL:** link + click path + exact field label + what to copy + where to paste + a one-line verification check.
+- **Acceptance test as an artifact:** one command/action with expected result and the top 1–2 failure branches.
+- **Evidence capture:** verified-on date, exact URLs, tool versions, and “what changed since last time”.
+- **Session ergonomics:** short paste-safe snippets (session prelude once, prefer `$HOME/...`, avoid wrapped commands).
+
+Not always worth applying (use judgment):
+
+- the full TaskLab task structure for small, purely internal work
+- heavy HITL step formalization when the change is low-risk and trivial to visually confirm
+
+Rule of thumb:
+
+- If the step touches a **trust boundary** (auth, billing, certificates, approvals, dashboards), apply the full discipline.
+- If it’s **low-risk** and easy to confirm, apply the lightweight subset (copy-safe instructions + acceptance test).
+
+These patterns should remain consistent with `tasklab/instructions/global-instructions.md`.
 
 ## 4) Task maturity model (for promotion decisions)
 
@@ -177,3 +204,10 @@ These are not failures — they are the next alignment checks as the project gro
 - **Lessons learned standardization:** ensure every task has a predictable place to record gotchas + remediations (report section or `lessons-learned.md`).
 - **HITL ergonomics consistency:** session preludes, short copy/paste snippets, and link scripts should be consistent across tasks.
 - **Docs drift enforcement:** when browsing is unavailable, the system must fail closed (ask for docs/screens) rather than guessing; keep this invariant strong.
+
+## 10)CHORES direction gaps to fill likely should do
+
+this is a jot pad, based on updated business direction passes.
+It could get stale fast.
+currently run a task by asking codex inside tasklab to make a new task for someInterface, working ouput in ~/dev/someInterface. clunky.
+tasklab executes, but its too magical, quiet, needs to say what it has done, researched, assure up to date, what surfaces. Then insted of giving bash scripts to run should describe the steps.

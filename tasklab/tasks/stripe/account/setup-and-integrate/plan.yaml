@@ -1,0 +1,25 @@
+decision:
+  service: "stripe"
+  chosen_surfaces:
+    - step: "collect keys + IDs"
+      surface: "hitl_web"
+      reason: "Dashboard is the source of truth for API keys + Prices."
+    - step: "local integration"
+      surface: "local_script"
+      reason: "Checkout + webhook verification must be implemented in code and tested locally."
+    - step: "webhook delivery to localhost"
+      surface: "stripe_cli_optional"
+      reason: "Stripe CLI is the fastest way to forward webhooks locally."
+
+steps:
+  - "Review references; update research.md + references/checked-surfaces.yaml (verified_on + versions)."
+  - "Run outputs/scripts/00-hitl-links.sh (prints deep links + writes /tmp helper scripts)."
+  - "Fill your project `.env` via outputs/scripts/00-init-project-env.sh (keys + price + webhook secret)."
+  - "Run outputs/scripts/01-preflight.sh."
+  - "Run outputs/scripts/02-run-sample-server.sh."
+  - "(Recommended) Run outputs/scripts/03-stripe-listen.sh and paste the printed whsec_... into your project `.env`."
+  - "Open the local app (outputs/scripts/04-open-local-app.sh), create a Checkout Session, and complete test checkout."
+  - "Trigger a test event (Stripe CLI `stripe trigger checkout.session.completed` or Dashboard test delivery)."
+  - "Run outputs/scripts/99-run-tests.sh (signature smoke + local create-checkout-session smoke)."
+  - "Update outputs/reports/setup-report.md with evidence (no secrets)."
+

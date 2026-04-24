@@ -1,0 +1,51 @@
+dsl_version: "tasklab.hitl.v0.1"
+
+task:
+  id: "stripe.account.setup_and_integrate"
+  title: "Stripe account setup + API keys + Checkout integration + webhooks"
+  summary: "Create a Stripe account (test mode), collect keys/IDs, integrate Checkout (payment) end-to-end, and verify webhook signature handling."
+  owner: "tasklab"
+  tags:
+    - "stripe"
+    - "account"
+    - "checkout"
+    - "webhooks"
+    - "setup"
+    - "hitl"
+
+context:
+  product: "stripe"
+  environment: "dev"
+  assumptions:
+    - "Operator has (or can create) a Stripe account."
+    - "Operator can run a local Node.js dev server."
+  prerequisites:
+    - "Node.js + npm"
+    - "Browser access for Stripe Dashboard"
+    - "Stripe CLI (optional but recommended for local webhook testing)"
+
+inputs:
+  - name: "project_root"
+    type: "string"
+    required: true
+
+outputs:
+  - name: "env_file_path"
+    type: "string"
+  - name: "checkout_session_url"
+    type: "string"
+  - name: "webhook_smoke_result"
+    type: "string"
+
+completion:
+  success_criteria:
+    - "Project `.env` (gitignored) contains STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_PRICE_ID, STRIPE_WEBHOOK_SECRET."
+    - "Local sample app creates a Checkout Session (mode=payment) for STRIPE_PRICE_ID and returns a hosted checkout URL."
+    - "Webhook endpoint verifies signatures using the raw request body and rejects invalid/old signatures."
+    - "End-to-end local test: Stripe CLI (or Dashboard test) delivers an event and server logs receipt."
+  evidence_required:
+    - "docs checked (verified_on + URLs)"
+    - "where keys/IDs came from (Dashboard vs CLI)"
+    - "scripts run"
+    - "checkout URL created (no secrets)"
+
