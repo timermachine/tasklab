@@ -19,6 +19,14 @@ tasks:
     run_count: 0
     promotion_notes: ""
     path: tasklab/tasks/google/wallet-passes/create-generic-pass
+  - service: spotify
+    task: oauth/setup-and-integrate
+    maturity: 0
+    last_run: null
+    last_outcome: null
+    run_count: 0
+    promotion_notes: ""
+    path: tasklab/tasks/spotify/oauth/setup-and-integrate
   - service: stripe
     task: account/setup-and-integrate
     maturity: 0

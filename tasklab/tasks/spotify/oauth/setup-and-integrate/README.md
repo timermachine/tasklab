@@ -65,6 +65,20 @@ bash outputs/scripts/02-oauth-login.sh --project-root "$PROJECT_ROOT"
 bash outputs/scripts/99-run-tests.sh --project-root "$PROJECT_ROOT"
 ```
 
+8) Fill in evidence and update the manifest:
+
+- Complete `outputs/reports/setup-report.md` (no secrets)
+- Update `manifest.yaml`: set `maturity: 1`, append a `runs` entry with date, outcome, Node version, and `docs_verified_on`
+
+9) Regenerate the registry:
+
+```bash
+cd /Users/steve/dev/TaskLab
+./scripts/build-registry.sh
+git add tasklab/tasks/spotify/oauth/setup-and-integrate/manifest.yaml tasklab/registry.yaml
+git commit -m "chore: update manifest + registry for spotify oauth"
+```
+
 ## To refresh tokens manually
 
 ```bash
