@@ -1,0 +1,46 @@
+dsl_version: "tasklab.hitl.v0.1"
+
+task:
+  id: "spotify.oauth.setup_and_integrate"
+  title: "Spotify app registration + OAuth Authorization Code flow + token lifecycle"
+  summary: "Register a Spotify app, complete the Authorization Code OAuth flow via a local callback server, persist access and refresh tokens, and verify the full token lifecycle against the Spotify Web API."
+  owner: "tasklab"
+  tags:
+    - "spotify"
+    - "oauth"
+    - "setup"
+    - "hitl"
+
+context:
+  product: "spotify"
+  environment: "dev"
+  assumptions:
+    - "Operator has (or can create) a Spotify account (free or premium)."
+    - "Operator can run Node.js 18+ locally."
+    - "Port 8888 is available for the OAuth callback server (override via SPOTIFY_CALLBACK_PORT)."
+  prerequisites:
+    - "Node.js 18+ (uses native fetch)"
+    - "Browser access for Spotify Developer Dashboard and OAuth login"
+
+inputs:
+  - name: "project_root"
+    type: "string"
+    required: true
+
+outputs:
+  - name: "env_file_path"
+    type: "string"
+  - name: "profile_display_name"
+    type: "string"
+
+completion:
+  success_criteria:
+    - "project .env (gitignored) contains SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI, SPOTIFY_ACCESS_TOKEN, SPOTIFY_REFRESH_TOKEN — none empty."
+    - "smoke-profile.mjs: GET /v1/me returns HTTP 200 and prints display_name."
+    - "smoke-refresh.mjs: refresh exchange returns a new access_token; second GET /v1/me succeeds."
+    - "99-run-tests.sh exits 0."
+  evidence_required:
+    - "Spotify app name and Client ID prefix (not secret) recorded in setup-report.md"
+    - "Redirect URI configured in dashboard"
+    - "display_name returned by /v1/me"
+    - "docs_verified_on date in checked-surfaces.yaml"

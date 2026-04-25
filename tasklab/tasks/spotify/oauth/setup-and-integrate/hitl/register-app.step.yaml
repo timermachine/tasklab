@@ -1,0 +1,82 @@
+type: hitl_web_step
+id: register_spotify_app
+title: Register a Spotify app and capture Client ID + Client Secret
+
+account_required:
+  service: Spotify for Developers
+  signup_url: https://developer.spotify.com/
+  note: "Free account. A Spotify account (free or premium) is required. No credit card needed."
+
+target:
+  service: spotify
+  entry_url: https://developer.spotify.com/dashboard/create
+
+doc_check:
+  docs:
+    - label: Authorization Code flow
+      url: https://developer.spotify.com/documentation/web-api/tutorials/code-flow
+    - label: App registration
+      url: https://developer.spotify.com/dashboard/create
+
+ui_expectation:
+  page_name: Create app
+  expected_labels:
+    - App name
+    - App description
+    - Redirect URIs
+    - I understand and agree with Spotify's Developer Terms of Service
+
+actions:
+  - kind: navigate
+    label: Open Create app page
+    url: https://developer.spotify.com/dashboard/create
+  - kind: fill
+    label: App name
+    locator_hint: "App name" field
+  - kind: fill
+    label: App description
+    locator_hint: "App description" field
+  - kind: fill
+    label: Redirect URI
+    locator_hint: "Redirect URIs" field
+    text: "Enter: http://localhost:8888/callback (adjust port if SPOTIFY_CALLBACK_PORT is set)"
+  - kind: note
+    label: Add redirect URI
+    locator_hint: "Add" button next to Redirect URIs
+    text: "Click Add after entering the redirect URI — it must appear in the list before saving."
+  - kind: click
+    label: Accept Terms of Service
+    locator_hint: "I understand and agree with Spotify's Developer Terms of Service" checkbox
+  - kind: click
+    label: Save / Create
+    locator_hint: "Save" or "Create" button
+  - kind: note
+    label: Open app settings to reveal credentials
+    locator_hint: Settings button on the app page
+    text: "After creation you land on the app overview. Click Settings to see Client ID and reveal Client Secret."
+  - kind: copy
+    label: Copy Client ID
+    locator_hint: "Client ID" field in Settings
+  - kind: copy
+    label: Reveal and copy Client Secret
+    locator_hint: "View client secret" link, then copy the revealed value
+  - kind: note
+    label: Persist values (copy once)
+    locator_hint: Your project root
+    text: "Paste into <project-root>/.env (gitignored): SPOTIFY_CLIENT_ID= and SPOTIFY_CLIENT_SECRET= and SPOTIFY_REDIRECT_URI=http://localhost:8888/callback"
+
+clipboard:
+  - label: Client ID
+    value_from: spotify_client_id
+  - label: Client Secret
+    value_from: spotify_client_secret
+    sensitive: true
+
+verify:
+  - kind: checkbox_confirmation
+    label: "Client ID, Client Secret, and Redirect URI recorded in project .env (gitignored) and noted in outputs/reports/setup-report.md"
+
+fallback:
+  - kind: note
+    label: If dashboard UI has changed
+    text: "Navigate to developer.spotify.com/dashboard, open your app, and look for Settings or Credentials. Record exact label names seen in setup-report.md."

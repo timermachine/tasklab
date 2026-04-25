@@ -1,0 +1,12 @@
+service: spotify
+verified_on: "2026-04-25"
+tool_versions:
+  node: ""
+surfaces_checked:
+  - official_docs
+  - developer_dashboard
+notes:
+  - "No Spotify CLI exists. All post-registration steps are scripted."
+  - "Access token TTL: 3600s. Refresh token: non-expiring unless revoked."
+  - "Record Node version used — native fetch required (Node 18+)."
+  - "dashboard/create redirects to home when unauthenticated; valid deep link post-login."

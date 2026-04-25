@@ -1,0 +1,24 @@
+decision:
+  service: "spotify"
+  chosen_surfaces:
+    - step: "app registration"
+      surface: "hitl_web"
+      reason: "No API surface exists to register a Spotify app. Dashboard is required."
+    - step: "OAuth Authorization Code flow"
+      surface: "local_script"
+      reason: "Local callback server (node:http) catches the redirect and exchanges the code for tokens automatically."
+    - step: "token refresh"
+      surface: "local_script"
+      reason: "POST /api/token with refresh_token is fully scriptable."
+    - step: "API verification"
+      surface: "local_script"
+      reason: "GET /v1/me requires only the access token — no HITL."
+
+steps:
+  - "Run outputs/scripts/00-hitl-links.sh --project-root <project-root> (prints deep links, writes /tmp helper scripts)."
+  - "Complete hitl/register-app.step.yaml: create Spotify app, copy CLIENT_ID + CLIENT_SECRET + REDIRECT_URI into <project-root>/.env."
+  - "Run outputs/scripts/01-preflight.sh --project-root <project-root>."
+  - "Run outputs/scripts/02-oauth-login.sh --project-root <project-root> (opens browser, catches callback, writes tokens)."
+  - "Run outputs/scripts/99-run-tests.sh --project-root <project-root> (smoke-profile + smoke-refresh)."
+  - "Fill outputs/reports/setup-report.md with evidence (no secrets)."
+  - "Update manifest.yaml: set maturity 0→1, append run entry with outcome + versions + docs_verified_on."

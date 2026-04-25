@@ -1,0 +1,13 @@
+{
+  "name": "tasklab-spotify-oauth",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Spotify OAuth callback server and smoke tests for TaskLab",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "smoke-profile": "node smoke-profile.mjs",
+    "smoke-refresh": "node smoke-refresh.mjs"
+  }
+}
