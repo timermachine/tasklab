@@ -4,6 +4,21 @@ This is the “how to actually execute a TaskLab task” runbook. It complements
 
 - `tasklab/instructions/global-instructions.md` (HITL-first, fail-closed rules)
 
+## 0) Check the registry
+
+Before picking a task, regenerate and open the registry:
+
+    ./scripts/build-registry.sh
+
+Then open `tasklab/registry.yaml` to see:
+
+- Tasks at `maturity: 0` — never run; need a first end-to-end pass
+- Tasks with `last_outcome: partial` or `failed` — need attention before promotion
+- Tasks at `maturity: 1` with multiple runs — candidates to bump to maturity 2
+- Tasks at `maturity: 2` with `promotion_notes` filled — ready for TaskLib
+
+Pick the task that most needs a run based on this snapshot.
+
 ## 1) Pick the task folder
 
 Tasks live under:
@@ -52,7 +67,7 @@ Typical pattern:
 
 If a script operates on a separate project, it should accept `--project-root <dir>` and run in that directory.
 
-## 5) Verify success and capture evidence
+## 5) Verify success and update the manifest
 
 Every task should end with:
 
@@ -60,10 +75,17 @@ Every task should end with:
 - expected output/behavior
 - the top 1–2 failure modes and a fix
 
-Capture evidence in:
+Capture evidence in `outputs/reports/*.md`, then update (or create) `manifest.yaml` in the task folder:
 
-- `outputs/reports/*.md`
-- a “lessons learned” note if the task calls for it
+- Set `maturity` if this run warrants a bump (0→1 on first working run; 1→2 after repeated runs with improvements)
+- Append a new entry under `runs` with today's date, outcome, notes, and relevant versions (CLI, API, `docs_verified_on`)
+- Fill `promotion_notes` if the task feels TaskLib-ready
+
+Then regenerate the registry and commit both together:
+
+    ./scripts/build-registry.sh
+    git add tasklab/tasks/<service>/<task>/manifest.yaml tasklab/registry.yaml
+    git commit -m “chore: update manifest + registry for <task>”
 
 ## 6) Promote later (optional)
 
