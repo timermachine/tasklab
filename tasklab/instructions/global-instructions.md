@@ -77,6 +77,17 @@ Do not mix scopes. Document these explicitly:
 
 Use separate file names for separate scopes; avoid two different “.env examples” that look interchangeable.
 
+## Snyk security check (mandatory before any npm/pnpm install)
+
+Before any `npm install` or `pnpm install`, run `tasklab_snyk_check <dir>` (defined in `tasklab/lib/bash/install.sh`).
+
+Rules:
+- Call `tasklab_snyk_check "$DIR"` immediately before every `npm install` / `pnpm install` in task scripts.
+- If snyk is not installed, the function warns and continues — the operator is responsible for installing snyk (`npm install -g snyk && snyk auth`).
+- If snyk finds vulnerabilities, the script exits non-zero. The operator must review and either remediate or set `TASKLAB_SNYK_SKIP=1` to override (not recommended).
+- `tasklab_script_npm_install_if_missing` already calls `tasklab_snyk_check` — do not add a second call when using that helper.
+- For pnpm projects, snyk picks up `pnpm-lock.yaml` automatically.
+
 ## Preflight checks (before any run/deploy)
 
 Before telling an operator to “start/deploy”, quickly check (or instruct them to check):

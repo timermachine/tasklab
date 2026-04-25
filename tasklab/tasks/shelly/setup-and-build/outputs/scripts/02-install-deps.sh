@@ -30,6 +30,8 @@ if [[ ! -d "$PROJECT_ROOT" ]]; then
   exit 1
 fi
 
+tasklab_snyk_check "$PROJECT_ROOT"
+
 echo "Installing dependencies in $PROJECT_ROOT ..."
 echo "  Command: pnpm install"
 echo "  Location: $PROJECT_ROOT"

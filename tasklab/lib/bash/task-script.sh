@@ -59,6 +59,7 @@ tasklab_script_open_url() {
 tasklab_script_npm_install_if_missing() {
   local sample_dir="$1"
   if [[ ! -d "$sample_dir/node_modules" ]]; then
+    tasklab_snyk_check "$sample_dir"
     tasklab_core_notice_npm_install "$sample_dir"
     (cd "$sample_dir" && npm install)
     echo "npm install OK: $sample_dir" >&2
