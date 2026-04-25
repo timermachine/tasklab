@@ -30,9 +30,26 @@ tasklab_core_env_precheck() {
 
 tasklab_core_env_source() {
   local env_file="$1"
+  if [[ ! -f "$env_file" ]]; then
+    echo "Missing env file: $env_file" >&2
+    exit 1
+  fi
   tasklab_core_env_precheck "$env_file"
   set -a
   # shellcheck disable=SC1090
   source "$env_file"
   set +a
+}
+
+tasklab_env_source_file() {
+  local env_file="$1"
+  tasklab_core_env_source "$env_file"
+}
+
+tasklab_env_need() {
+  local env_file="$1" key="$2"
+  if [[ -z "${!key:-}" ]]; then
+    echo "Missing required env var: $key (in $env_file)" >&2
+    exit 1
+  fi
 }

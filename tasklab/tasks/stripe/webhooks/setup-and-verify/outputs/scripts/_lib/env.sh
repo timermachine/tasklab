@@ -18,19 +18,6 @@ source "$TASKLAB_ROOT/tasklab/lib/bash/task-script.sh"
 # shellcheck disable=SC1091
 source "$TASKLAB_ROOT/tasklab/lib/bash/stripe.sh"
 
-tasklab_env_source_file() {
-  local env_file="$1"
-  tasklab_core_env_source "$env_file"
-}
-
-tasklab_env_need() {
-  local env_file="$1" key="$2"
-  if [[ -z "${!key:-}" ]]; then
-    echo "Missing required env var: $key (in $env_file)" >&2
-    exit 1
-  fi
-}
-
 tasklab_env_validate_stripe() {
   local env_file="$1"
   tasklab_stripe_validate_webhook_common "$env_file"
