@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 # Generates a self-contained task portal HTML page and opens it in your browser.
-# Replaces the hand-authored portal with the shared tasklab/lib/portal/generate.js generator.
-#
 # Usage: ./00-hitl-portal.sh [--project-root <dir>] [--out <path>] [--open]
 set -euo pipefail
 
@@ -10,10 +8,7 @@ OUT_FILE=""
 AUTO_OPEN=false
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TASKLAB_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || true)"
-if [[ -z "$TASKLAB_ROOT" ]]; then
-  TASKLAB_ROOT="$(cd "$SCRIPT_DIR/../../../../../../.." && pwd)"
-fi
+TASKLAB_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || { echo "Error: not in a git repo" >&2; exit 1; })"
 TASK_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 GENERATOR="$TASKLAB_ROOT/tasklab/lib/portal/generate.js"
 
@@ -36,9 +31,9 @@ command -v yq   &>/dev/null || { echo "Error: yq is required."   >&2; exit 1; }
 [[ -f "$GENERATOR" ]] || { echo "Error: generator not found at $GENERATOR" >&2; exit 1; }
 
 node "$GENERATOR" \
-  --task-dir    "$TASK_DIR" \
+  --task-dir     "$TASK_DIR" \
   --project-root "$PROJECT_ROOT" \
-  --out         "$OUT_FILE"
+  --out          "$OUT_FILE"
 
 if [[ "$AUTO_OPEN" == "true" ]]; then
   command -v open &>/dev/null && open "$OUT_FILE" || true
