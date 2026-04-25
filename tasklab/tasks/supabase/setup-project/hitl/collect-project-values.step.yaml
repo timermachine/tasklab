@@ -2,6 +2,11 @@ type: hitl_web_step
 id: collect_project_values
 title: Collect Supabase project ref, URL, and API keys
 
+account_required:
+  service: Supabase
+  signup_url: https://supabase.com/dashboard/sign-up
+  note: "Free tier available. No credit card required to create a project."
+
 target:
   service: supabase
   entry_url: https://app.supabase.com

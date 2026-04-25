@@ -2,6 +2,11 @@ type: hitl_web_step
 id: enable_api_and_issuer
 title: Enable Wallet API and ensure issuer access exists
 
+account_required:
+  service: Google Cloud
+  signup_url: https://console.cloud.google.com/freetrial
+  note: "Free tier / trial available. A Google account is required. Credit card needed for project creation but free quota covers this task."
+
 target:
   service: google-wallet-passes
   entry_url: https://console.cloud.google.com/apis/library/walletobjects.googleapis.com

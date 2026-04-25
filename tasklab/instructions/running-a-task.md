@@ -31,6 +31,29 @@ Start by opening:
 - `research.md` (docs to verify + surface choices)
 - `plan.yaml` (ordered steps)
 
+## 1b) Verify links are still current (playwright-cli)
+
+Before executing, spot-check that the deep links and docs URLs in the task are still valid. Dashboard UIs and docs move.
+
+```bash
+# Open each entry_url from hitl/*.step.yaml and confirm it lands on the right section
+playwright-cli open <entry_url>
+# Check the snapshot: redirected URL should match the expected section, not a generic home or 404
+
+# Check a docs URL from references/docs.md
+playwright-cli goto <docs_url>
+# Confirm the page title matches the expected topic; 404 or wrong title = URL has drifted
+playwright-cli close
+```
+
+If a URL has drifted:
+- Find the correct current URL (follow redirects, search the docs site).
+- Update the affected `hitl/*.step.yaml` (`entry_url`, `doc_check.docs[]`, navigate `url`).
+- Update `references/docs.md` with the new URL and today's date.
+- Update `checked-surfaces.yaml` with the new `docs_verified_on` date.
+
+Record any version changes you notice (new UI, renamed sections, deprecated flows) in `outputs/reports/setup-report.md` before proceeding.
+
 ## 2) Create your local inputs file
 
 Most tasks include:
@@ -45,7 +68,9 @@ Copy it to:
 
 ## 3) Set a single source of truth for copyable values
 
-If the task needs IDs/URLs/keys, prefer a repo-local `.env` file in the **target project** (gitignored) so scripts can read it.
+> **Two-directory model:** the task folder (`tasklab/tasks/.../`) holds scripts and templates only. All runtime artifacts — `.env`, credentials, scaffolded code — go into your `<project-root>` (outside this repo, gitignored there). Scripts accept `--project-root <dir>` for this reason.
+
+If the task needs IDs/URLs/keys, use a `.env` file in your **project root** (gitignored) so scripts can read it.
 
 Rules:
 

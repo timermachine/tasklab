@@ -2,9 +2,14 @@ type: hitl_web_step
 id: collect_api_keys
 title: Collect Stripe publishable + secret API keys (test mode)
 
+account_required:
+  service: Stripe
+  signup_url: https://dashboard.stripe.com/register
+  note: "Free account. No credit card required for test mode."
+
 target:
   service: stripe
-  entry_url: https://dashboard.stripe.com
+  entry_url: https://dashboard.stripe.com/test/apikeys
 
 doc_check:
   docs:
@@ -22,7 +27,7 @@ ui_expectation:
 actions:
   - kind: navigate
     label: Open Stripe Dashboard
-    url: https://dashboard.stripe.com
+    url: https://dashboard.stripe.com/test/apikeys
   - kind: note
     label: Switch to test mode
     locator_hint: Mode toggle (test vs live)

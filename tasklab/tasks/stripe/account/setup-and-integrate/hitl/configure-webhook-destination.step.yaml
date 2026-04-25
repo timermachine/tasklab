@@ -4,7 +4,7 @@ title: Configure a webhook destination/endpoint and capture STRIPE_WEBHOOK_SECRE
 
 target:
   service: stripe
-  entry_url: https://dashboard.stripe.com
+  entry_url: https://dashboard.stripe.com/test/webhooks
 
 doc_check:
   docs:
@@ -23,7 +23,7 @@ ui_expectation:
 actions:
   - kind: navigate
     label: Open Stripe Dashboard
-    url: https://dashboard.stripe.com
+    url: https://dashboard.stripe.com/test/webhooks
   - kind: note
     label: CLI-first recommendation
     locator_hint: N/A

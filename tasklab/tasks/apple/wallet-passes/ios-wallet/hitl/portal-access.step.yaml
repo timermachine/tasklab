@@ -2,6 +2,11 @@ type: hitl_web_step
 id: portal_access
 title: Verify Apple Developer Program access (Certificates, Identifiers & Profiles)
 
+account_required:
+  service: Apple Developer Program
+  signup_url: https://developer.apple.com/programs/enroll/
+  note: "Paid membership required ($99/year). Enrollment takes up to 48 hours for individuals; longer for organisations."
+
 target:
   service: apple-wallet-passkit
   entry_url: https://developer.apple.com/account/resources/

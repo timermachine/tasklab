@@ -41,6 +41,8 @@ A task should define a concrete goal, current research, chosen execution surface
 
 ## Task file boundaries
 
+> **The task folder is not the project folder.** See the two-directory model in `global-instructions.md`. Generated env, keys, scaffolded code, and `node_modules` always go to `<project-root>` — never into the task folder.
+
 ### `task.yaml`
 Task contract only:
 - goal
@@ -63,6 +65,26 @@ Runnable artifacts and tests.
 
 ### `references/`
 Links, version notes, checked surfaces.
+
+## Playwright link verification (research phase)
+
+Before committing any URLs to HITL step files or `references/docs.md`, use `playwright-cli` to verify they resolve:
+
+```bash
+# Verify a dashboard deep link redirects correctly (not 404 or wrong page)
+playwright-cli open https://dashboard.stripe.com/test/apikeys
+# Check the redirect URL in the snapshot — should include the section path, not a generic home
+
+# Verify a docs page is live
+playwright-cli goto https://docs.stripe.com/keys
+# Page title in the snapshot confirms correct destination; 404 means the URL has drifted
+```
+
+Rules:
+- Every `entry_url` in a `hitl/*.step.yaml` must be a deep link verified to redirect to the correct section, not the service home page.
+- Every URL in `references/docs.md` and `doc_check.docs[]` in HITL steps must return a live page (not 404).
+- Record the verified-on date in `references/checked-surfaces.yaml`.
+- If a docs URL redirects, record the final resolved URL (not the redirect source).
 
 ## Mandatory “HITL links” helper (when copy-once values exist)
 

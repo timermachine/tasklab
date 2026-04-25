@@ -4,12 +4,12 @@ title: Create a test Product + Price and capture STRIPE_PRICE_ID
 
 target:
   service: stripe
-  entry_url: https://dashboard.stripe.com
+  entry_url: https://dashboard.stripe.com/test/products
 
 doc_check:
   docs:
     - label: Products and prices
-      url: https://docs.stripe.com/products-prices
+      url: https://docs.stripe.com/products-prices/overview
 
 ui_expectation:
   page_name: Products (test mode)
@@ -21,7 +21,7 @@ ui_expectation:
 actions:
   - kind: navigate
     label: Open Stripe Dashboard
-    url: https://dashboard.stripe.com
+    url: https://dashboard.stripe.com/test/products
   - kind: note
     label: Switch to test mode
     locator_hint: Mode toggle (test vs live)

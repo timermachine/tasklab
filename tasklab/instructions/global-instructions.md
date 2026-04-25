@@ -2,6 +2,21 @@
 
 These rules apply to **every** TaskLab task (Supabase or otherwise). They exist to prevent “small gotchas” from derailing Human-in-the-Loop (HITL) execution.
 
+## Two-directory model (mandatory)
+
+Every task operates across two directories with distinct roles. Never mix them.
+
+| Directory | Role | What goes here |
+|-----------|------|----------------|
+| `tasklab/tasks/<service>/<task>/` | **Task folder** — committed to the repo | Scripts, templates, HITL step files, sample code, report templates, references. Nothing operator-specific, nothing secret. |
+| `<project-root>/` (operator-supplied via `--project-root`) | **Project folder** — lives outside the repo | Generated `.env`, real credentials/keys, scaffolded app code, `node_modules`, anything produced at runtime. Always gitignored at that location. |
+
+Rules:
+- Scripts must accept `--project-root <dir>` and write all runtime artifacts there, not into the task folder.
+- `.env.example` lives in the task folder. The real `.env` (with values) lives in `<project-root>/.env`.
+- Sample/scaffold code templates live in `outputs/sample/` in the task folder. When a script scaffolds a project, it writes the live copy to `<project-root>/`.
+- Never write credentials, tokens, or operator-specific state into the task folder, even temporarily.
+
 ## Hard gate: reduce HITL friction (mandatory)
 
 Before presenting steps, identify anything that will require repeated manual lookup/copy/paste (IDs, URLs, tokens, refs, region names, etc.) and replace it with one of:
