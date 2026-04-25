@@ -54,9 +54,9 @@ SAMPLE_DIR="$(cd "$SCRIPT_DIR/../sample/node" && pwd)"
 
 if [[ ! -d "$SAMPLE_DIR/node_modules" ]]; then
   tasklab_snyk_check "$SAMPLE_DIR"
-  tasklab_core_notice_npm_install "$SAMPLE_DIR"
-  (cd "$SAMPLE_DIR" && npm install)
-  echo "npm install OK: $SAMPLE_DIR" >&2
+  tasklab_core_notice_npm_install "$SAMPLE_DIR" "ci"
+  (cd "$SAMPLE_DIR" && npm ci)
+  echo "npm ci OK: $SAMPLE_DIR" >&2
 fi
 
 node "$SAMPLE_DIR/smokeWalletApi.mjs"

@@ -60,9 +60,11 @@ tasklab_script_npm_install_if_missing() {
   local sample_dir="$1"
   if [[ ! -d "$sample_dir/node_modules" ]]; then
     tasklab_snyk_check "$sample_dir"
-    tasklab_core_notice_npm_install "$sample_dir"
-    (cd "$sample_dir" && npm install)
-    echo "npm install OK: $sample_dir" >&2
+    local npm_cmd="install"
+    [[ -f "$sample_dir/package-lock.json" ]] && npm_cmd="ci"
+    tasklab_core_notice_npm_install "$sample_dir" "$npm_cmd"
+    (cd "$sample_dir" && npm "$npm_cmd")
+    echo "npm $npm_cmd OK: $sample_dir" >&2
   fi
 }
 

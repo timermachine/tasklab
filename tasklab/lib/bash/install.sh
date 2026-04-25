@@ -46,13 +46,71 @@ tasklab_snyk_check() {
   echo "snyk OK: $dir" >&2
 }
 
+tasklab_checksum_verify() {
+  local file="$1"
+  local expected_sha256="$2"
+
+  local actual_sha256
+  if command -v sha256sum >/dev/null 2>&1; then
+    actual_sha256="$(sha256sum "$file" | cut -d' ' -f1)"
+  elif command -v shasum >/dev/null 2>&1; then
+    actual_sha256="$(shasum -a 256 "$file" | cut -d' ' -f1)"
+  else
+    echo "WARNING: sha256sum/shasum not found — skipping checksum verification." >&2
+    return 0
+  fi
+
+  if [[ "$actual_sha256" != "$expected_sha256" ]]; then
+    echo "FAIL: Checksum mismatch for $(basename "$file")" >&2
+    echo "  Expected: $expected_sha256" >&2
+    echo "  Got:      $actual_sha256" >&2
+    return 1
+  fi
+
+  echo "Checksum OK: $(basename "$file")" >&2
+}
+
+tasklab_apk_verify() {
+  local apk="$1"
+
+  local apksigner_bin=""
+  if command -v apksigner >/dev/null 2>&1; then
+    apksigner_bin="apksigner"
+  else
+    # Search Android SDK build-tools (macOS default SDK location)
+    apksigner_bin="$(find "${ANDROID_HOME:-$HOME/Library/Android/sdk}/build-tools" \
+      -name "apksigner" 2>/dev/null | sort -V | tail -1 || true)"
+  fi
+
+  if [[ -z "$apksigner_bin" ]]; then
+    echo "WARNING: apksigner not found — skipping APK signature verification." >&2
+    echo "  Install Android Studio or add build-tools to PATH." >&2
+    return 0
+  fi
+
+  echo "Verifying APK signature: $(basename "$apk")" >&2
+  echo "  Command: apksigner verify --verbose $apk" >&2
+
+  local output
+  output="$("$apksigner_bin" verify --verbose "$apk" 2>&1 || true)"
+
+  if echo "$output" | grep -q "Verified using"; then
+    echo "APK signature OK: $(basename "$apk")" >&2
+  else
+    echo "FAIL: APK signature verification failed for $(basename "$apk")" >&2
+    echo "$output" >&2
+    return 1
+  fi
+}
+
 tasklab_core_notice_npm_install() {
   local dir="$1"
+  local cmd="${2:-install}"   # "install" or "ci"
   local pkg="$dir/package.json"
 
   echo "Installing npm dependencies locally (project-only)..." >&2
   echo "- Working dir: $dir" >&2
-  echo "- Command:     (cd \"$dir\" && npm install)" >&2
+  echo "- Command:     (cd \"$dir\" && npm $cmd)" >&2
 
   if [[ -f "$pkg" ]] && command -v node >/dev/null 2>&1; then
     local deps

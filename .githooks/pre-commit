@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+# TaskLab pre-commit hook
+# Runs supply-chain security checks on staged changes.
+set -euo pipefail
+
+FAILED=0
+
+# ── Helper ─────────────────────────────────────────────────────────────────
+
+fail() {
+  echo "pre-commit: FAIL — $*" >&2
+  FAILED=1
+}
+
+warn() {
+  echo "pre-commit: WARN — $*" >&2
+}
+
+# ── 1. No curl|bash patterns ───────────────────────────────────────────────
+# Check staged shell scripts for unsafe curl|bash / wget|bash patterns.
+
+STAGED_SCRIPTS="$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(sh|bash)$' || true)"
+
+if [[ -n "$STAGED_SCRIPTS" ]]; then
+  while IFS= read -r f; do
+    if git show ":$f" 2>/dev/null | grep -qP 'curl\s+.*\|\s*(ba)?sh|wget\s+.*\|\s*(ba)?sh'; then
+      fail "$f: contains curl|bash or wget|bash pattern (never pipe untrusted content to shell)"
+    fi
+  done <<< "$STAGED_SCRIPTS"
+fi
+
+# ── 2. npm install without frozen/ci (when lockfile exists) ───────────────
+# If a staged script calls `npm install` and a package-lock.json exists nearby,
+# flag it — prefer `npm ci`.
+
+if [[ -n "$STAGED_SCRIPTS" ]]; then
+  while IFS= read -r f; do
+    dir="$(dirname "$f")"
+    # Walk up to find a package-lock.json in the same task outputs tree
+    check_dir="$dir"
+    lockfile_found=0
+    for _ in 1 2 3 4 5; do
+      if [[ -f "$check_dir/package-lock.json" ]]; then
+        lockfile_found=1
+        break
+      fi
+      check_dir="$(dirname "$check_dir")"
+    done
+
+    if [[ "$lockfile_found" -eq 1 ]]; then
+      if git show ":$f" 2>/dev/null | grep -qE '\bnpm install\b' && \
+         ! git show ":$f" 2>/dev/null | grep -qE '\bnpm (ci|install --)\b'; then
+        fail "$f: uses 'npm install' but a package-lock.json exists nearby — use 'npm ci' instead"
+      fi
+    fi
+  done <<< "$STAGED_SCRIPTS"
+fi
+
+# ── 3. pnpm install without --frozen-lockfile ─────────────────────────────
+
+if [[ -n "$STAGED_SCRIPTS" ]]; then
+  while IFS= read -r f; do
+    if git show ":$f" 2>/dev/null | grep -qE '\bpnpm install\b' && \
+       ! git show ":$f" 2>/dev/null | grep -qE '\bpnpm install\s+--frozen-lockfile\b'; then
+      fail "$f: uses 'pnpm install' without --frozen-lockfile"
+    fi
+  done <<< "$STAGED_SCRIPTS"
+fi
+
+# ── 4. New package.json must have a paired lockfile ───────────────────────
+# If a package.json is being added, check that a package-lock.json (or
+# pnpm-lock.yaml / yarn.lock) also exists in the same directory.
+
+STAGED_PKG_JSON="$(git diff --cached --name-only --diff-filter=A | grep 'package\.json$' | grep -v 'node_modules' || true)"
+
+if [[ -n "$STAGED_PKG_JSON" ]]; then
+  while IFS= read -r f; do
+    dir="$(dirname "$f")"
+    if ! git diff --cached --name-only | grep -qE "^${dir}/(package-lock\.json|pnpm-lock\.yaml|yarn\.lock)$"; then
+      if [[ ! -f "$dir/package-lock.json" && ! -f "$dir/pnpm-lock.yaml" && ! -f "$dir/yarn.lock" ]]; then
+        fail "$f: new package.json added without a lockfile in $dir — commit a lockfile alongside it"
+      fi
+    fi
+  done <<< "$STAGED_PKG_JSON"
+fi
+
+# ── 5. Snyk scan on changed package dirs (optional, skippable) ────────────
+# If snyk is available, scan any directories where package.json changed.
+
+if [[ "${TASKLAB_SNYK_SKIP:-0}" != "1" ]] && command -v snyk >/dev/null 2>&1; then
+  CHANGED_PKG_DIRS="$(git diff --cached --name-only --diff-filter=ACM | grep 'package\.json$' | grep -v 'node_modules' | xargs -I{} dirname {} | sort -u || true)"
+  if [[ -n "$CHANGED_PKG_DIRS" ]]; then
+    while IFS= read -r dir; do
+      if [[ -f "$dir/package.json" ]]; then
+        echo "pre-commit: snyk test $dir" >&2
+        if ! snyk test "$dir" >/dev/null 2>&1; then
+          fail "$dir: snyk found vulnerabilities — run 'snyk test $dir' for details"
+        fi
+      fi
+    done <<< "$CHANGED_PKG_DIRS"
+  fi
+fi
+
+# ── Result ────────────────────────────────────────────────────────────��────
+
+if [[ "$FAILED" -eq 1 ]]; then
+  echo "" >&2
+  echo "pre-commit checks failed. Fix the issues above and re-stage." >&2
+  echo "  To skip snyk only: TASKLAB_SNYK_SKIP=1 git commit ..." >&2
+  exit 1
+fi
+
+exit 0
