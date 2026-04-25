@@ -28,17 +28,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if ! command -v stripe >/dev/null 2>&1; then
-  echo "Missing Stripe CLI (stripe). Install it or use the Dashboard/Workbench delivery tester." >&2
-  exit 1
-fi
-
-if [[ -z "$ENV_FILE" ]]; then
-  ENV_FILE="$PROJECT_ROOT/.env"
-fi
 
 # shellcheck disable=SC1091
 source "$TASKLAB_STRIPE_SCRIPT_DIR/_lib/env.sh"
+tasklab_script_require_command "stripe" "Missing Stripe CLI (stripe). Install it or use the Dashboard/Workbench delivery tester."
+ENV_FILE="$(tasklab_script_default_env_file "$PROJECT_ROOT" "$ENV_FILE")"
 tasklab_env_source_file "$ENV_FILE"
 tasklab_env_validate_stripe_account "$ENV_FILE"
 

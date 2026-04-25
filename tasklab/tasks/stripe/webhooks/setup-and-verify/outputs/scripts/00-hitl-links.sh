@@ -11,6 +11,8 @@ TASKLAB_ROOT="$(cd "$TASKLAB_STRIPE_SCRIPT_DIR" && git rev-parse --show-toplevel
 if [[ -z "$TASKLAB_ROOT" ]]; then
   TASKLAB_ROOT="$(cd "$TASKLAB_STRIPE_SCRIPT_DIR/../../../../../../.." && pwd)"
 fi
+# shellcheck disable=SC1091
+source "$TASKLAB_STRIPE_SCRIPT_DIR/_lib/env.sh"
 
 usage() {
   cat >&2 <<'EOF'
@@ -33,24 +35,12 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ -z "$ENV_FILE" ]]; then
-  ENV_FILE="$PROJECT_ROOT/.env"
-fi
+ENV_FILE="$(tasklab_script_default_env_file "$PROJECT_ROOT" "$ENV_FILE")"
 
-pretty_path() {
-  local p="$1"
-  if [[ -n "${HOME:-}" && "$p" == "$HOME"* ]]; then
-    printf '%s' "\$HOME${p#$HOME}"
-    return 0
-  fi
-  printf '%s' "$p"
-}
+PROJECT_ROOT_PRETTY="$(tasklab_script_pretty_path "$PROJECT_ROOT")"
 
-PROJECT_ROOT_PRETTY="$(pretty_path "$PROJECT_ROOT")"
-TASKLAB_ROOT_PRETTY="$(pretty_path "${TASKLAB_ROOT:-/path/to/TaskLab}")"
-
-echo "Project root: $PROJECT_ROOT"
-echo "Env file:     $ENV_FILE"
+echo "Project root: $PROJECT_ROOT_PRETTY"
+echo "Env file:     $(tasklab_script_pretty_path "$ENV_FILE")"
 echo
 
 DOCS_TEST="https://docs.stripe.com/webhooks/test"
@@ -89,22 +79,6 @@ echo
 echo "Next (human note): run this script once per session to regenerate the /tmp helper files it mentions below."
 echo "It’s the copy/paste-safe entrypoint: it prints the deep links + writes runnable step scripts under /tmp."
 
-copy_to_clipboard() {
-  local text="$1"
-  if command -v pbcopy >/dev/null 2>&1; then
-    printf "%s" "$text" | pbcopy
-    return 0
-  fi
-  if command -v xclip >/dev/null 2>&1; then
-    printf "%s" "$text" | xclip -selection clipboard
-    return 0
-  fi
-  if command -v xsel >/dev/null 2>&1; then
-    printf "%s" "$text" | xsel --clipboard --input
-    return 0
-  fi
-  return 1
-}
 
 SESSION_FILE="/tmp/tasklab-session-stripe-webhooks.sh"
 SETUP_FILE="/tmp/tasklab-next-stripe-webhooks-setup.sh"
@@ -205,7 +179,7 @@ EOF
 )
 
 if [[ "$NO_COPY" != "true" ]]; then
-  if copy_to_clipboard "$RUN_LINES"; then
+  if tasklab_script_copy_to_clipboard "$RUN_LINES"; then
     echo
     echo "Copied to clipboard (short run lines):"
     echo "$RUN_LINES"
@@ -216,14 +190,6 @@ if [[ "$NO_COPY" != "true" ]]; then
   fi
 fi
 
-open_url() {
-  local url="$1"
-  if command -v open >/dev/null 2>&1; then
-    open "$url" >/dev/null 2>&1 || true
-  elif command -v xdg-open >/dev/null 2>&1; then
-    xdg-open "$url" >/dev/null 2>&1 || true
-  fi
-}
 
 if [[ "$ASK_OPEN" == "true" && "$OPEN_LINKS" != "true" ]]; then
   echo
@@ -238,6 +204,6 @@ fi
 if [[ "$OPEN_LINKS" == "true" ]]; then
   echo
   echo "Opening links (best-effort)..."
-  open_url "$DOCS_TEST"
-  open_url "$DASH_WEBHOOKS_TEST"
+  tasklab_script_open_url "$DOCS_TEST"
+  tasklab_script_open_url "$DASH_WEBHOOKS_TEST"
 fi

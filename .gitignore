@@ -2,3 +2,17 @@
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
+
+# Dependencies
+node_modules/
+
+# Local secrets / env
+.env
+.env.local
+*.env.local
+
+# Operator inputs (local, not secrets, but not for committing)
+inputs.yaml
+
+# macOS
+.DS_Store

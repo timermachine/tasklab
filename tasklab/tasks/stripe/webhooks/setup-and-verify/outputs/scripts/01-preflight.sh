@@ -26,9 +26,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ -z "$ENV_FILE" ]]; then
-  ENV_FILE="$PROJECT_ROOT/.env"
-fi
+# shellcheck disable=SC1091
+source "$TASKLAB_STRIPE_SCRIPT_DIR/_lib/env.sh"
+ENV_FILE="$(tasklab_script_default_env_file "$PROJECT_ROOT" "$ENV_FILE")"
 
 echo "Node: $(command -v node || echo 'missing')"
 echo "npm:  $(command -v npm || echo 'missing')"
@@ -46,21 +46,10 @@ if [[ ! -f "$ENV_FILE" ]]; then
   exit 1
 fi
 
-# shellcheck disable=SC1091
-source "$TASKLAB_STRIPE_SCRIPT_DIR/_lib/env.sh"
 tasklab_env_source_file "$ENV_FILE"
 tasklab_env_validate_stripe "$ENV_FILE"
-
-need() {
-  local key="$1"
-  if [[ -z "${!key:-}" ]]; then
-    echo "Missing required env var: $key (in $ENV_FILE)" >&2
-    exit 1
-  fi
-}
-
-need "STRIPE_WEBHOOK_PORT"
-need "STRIPE_WEBHOOK_PATH"
-need "STRIPE_WEBHOOK_SECRET"
+tasklab_env_need "$ENV_FILE" "STRIPE_WEBHOOK_PORT"
+tasklab_env_need "$ENV_FILE" "STRIPE_WEBHOOK_PATH"
+tasklab_env_need "$ENV_FILE" "STRIPE_WEBHOOK_SECRET"
 
 echo "Preflight OK"

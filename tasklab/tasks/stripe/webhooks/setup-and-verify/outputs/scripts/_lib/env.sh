@@ -13,6 +13,10 @@ fi
 source "$TASKLAB_ROOT/tasklab/lib/bash/env.sh"
 # shellcheck disable=SC1091
 source "$TASKLAB_ROOT/tasklab/lib/bash/install.sh"
+# shellcheck disable=SC1091
+source "$TASKLAB_ROOT/tasklab/lib/bash/task-script.sh"
+# shellcheck disable=SC1091
+source "$TASKLAB_ROOT/tasklab/lib/bash/stripe.sh"
 
 tasklab_env_source_file() {
   local env_file="$1"
@@ -29,20 +33,5 @@ tasklab_env_need() {
 
 tasklab_env_validate_stripe() {
   local env_file="$1"
-
-  if [[ -n "${STRIPE_WEBHOOK_SECRET:-}" && "$STRIPE_WEBHOOK_SECRET" != whsec_* ]]; then
-    echo "Invalid STRIPE_WEBHOOK_SECRET in $env_file: expected to start with whsec_" >&2
-    exit 1
-  fi
-
-  if [[ -n "${STRIPE_WEBHOOK_TOLERANCE_SECONDS:-}" ]]; then
-    if ! [[ "$STRIPE_WEBHOOK_TOLERANCE_SECONDS" =~ ^[0-9]+$ ]]; then
-      echo "Invalid STRIPE_WEBHOOK_TOLERANCE_SECONDS in $env_file: must be an integer" >&2
-      exit 1
-    fi
-    if [[ "$STRIPE_WEBHOOK_TOLERANCE_SECONDS" == "0" ]]; then
-      echo "Invalid STRIPE_WEBHOOK_TOLERANCE_SECONDS in $env_file: must be > 0 (0 disables recency check)" >&2
-      exit 1
-    fi
-  fi
+  tasklab_stripe_validate_webhook_common "$env_file"
 }
