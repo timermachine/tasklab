@@ -19,6 +19,14 @@ tasks:
     run_count: 0
     promotion_notes: ""
     path: tasklab/tasks/google/wallet-passes/create-generic-pass
+  - service: shelly
+    task: setup-and-build
+    maturity: 0
+    last_run: null
+    last_outcome: null
+    run_count: 0
+    promotion_notes: ""
+    path: tasklab/tasks/shelly/setup-and-build
   - service: spotify
     task: oauth/setup-and-integrate
     maturity: 0

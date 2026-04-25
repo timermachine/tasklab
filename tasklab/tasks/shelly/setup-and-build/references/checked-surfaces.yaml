@@ -1,0 +1,16 @@
+service: shelly
+verified_on: "2026-04-25"
+tool_versions:
+  node: ""
+  pnpm: ""
+  android_ndk: ""
+  adb: ""
+surfaces_checked:
+  - github_releases
+  - contributing_md
+  - android_studio_docs
+notes:
+  - "Expo Go not supported — native Kotlin/C modules require full build or release APK."
+  - "NDK r27 required for local build. Install via Android Studio SDK Manager."
+  - "Bundle ID: dev.shelly.terminal"
+  - "First launch requires granting All Files Access (MANAGE_EXTERNAL_STORAGE)."

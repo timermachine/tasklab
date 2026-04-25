@@ -1,0 +1,51 @@
+dsl_version: "tasklab.hitl.v0.1"
+
+task:
+  id: "shelly.setup_and_build"
+  title: "Clone, build, and install Shelly on an Android device"
+  summary: "Set up the Shelly AI terminal IDE for Android from source: clone, install deps, build APK via pnpm android, install via adb, and verify the app launches. Fallback path: download latest release APK and sideload."
+  owner: "tasklab"
+  tags:
+    - "shelly"
+    - "android"
+    - "expo"
+    - "react-native"
+    - "setup"
+    - "hitl"
+
+context:
+  product: "shelly"
+  environment: "dev"
+  assumptions:
+    - "Operator has (or can connect) an Android device with USB debugging enabled."
+    - "Operator has Node.js 22+ and pnpm installed, or is willing to install them."
+    - "For local build path: Android SDK + NDK r27+ is installed (Android Studio handles this)."
+    - "For release APK path: no build tools required — just adb and an Android device."
+  prerequisites:
+    - "Android device (physical) with USB debugging enabled, OR Android emulator"
+    - "adb (Android Debug Bridge) — bundled with Android Studio / platform-tools"
+    - "Local build path only: Node.js 22+, pnpm, Android Studio with NDK r27+"
+
+inputs:
+  - name: "project_root"
+    type: "string"
+    required: true
+    description: "Path to the cloned Shelly repo (e.g. ../shelly)"
+
+outputs:
+  - name: "apk_path"
+    type: "string"
+  - name: "installed_package"
+    type: "string"
+
+completion:
+  success_criteria:
+    - "adb shell pm list packages | grep dev.shelly.terminal returns the package."
+    - "App launches on device without crash."
+    - "Local build path: pnpm android completes and installs via adb."
+    - "Release path: APK downloaded from GitHub Releases and installed via adb install."
+  evidence_required:
+    - "Build path used (local or release) recorded in setup-report.md"
+    - "Android device model + Android version"
+    - "Node version and NDK version (local build only)"
+    - "adb devices output confirming device connected"

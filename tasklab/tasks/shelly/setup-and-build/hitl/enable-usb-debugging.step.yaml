@@ -1,0 +1,54 @@
+type: hitl_web_step
+id: enable_usb_debugging
+title: Enable USB debugging on Android device
+
+account_required:
+  service: Android Developer Options
+  signup_url: https://developer.android.com/studio
+  note: "No account needed. Android Studio (free) provides adb and the Android SDK."
+
+target:
+  service: android-device
+  entry_url: https://developer.android.com/studio/run/device
+
+doc_check:
+  docs:
+    - label: Run apps on a hardware device
+      url: https://developer.android.com/studio/run/device
+
+ui_expectation:
+  page_name: Device Settings → Developer Options
+  expected_labels:
+    - Build number
+    - Developer options
+    - USB debugging
+
+actions:
+  - kind: note
+    label: Unlock Developer Options
+    locator_hint: Settings → About phone → Build number
+    text: "Open Settings → About phone (or About device) → tap Build number 7 times rapidly. You will see 'You are now a developer!' toast."
+  - kind: note
+    label: Enable USB debugging
+    locator_hint: Settings → Developer options → USB debugging
+    text: "Open Settings → Developer options → toggle USB debugging ON. Confirm the warning dialog."
+  - kind: note
+    label: Connect device via USB
+    locator_hint: USB cable
+    text: "Connect device to your Mac via USB. When prompted on the device 'Allow USB debugging?', tick 'Always allow from this computer' and tap Allow."
+  - kind: note
+    label: Verify adb sees the device
+    locator_hint: Terminal
+    text: "Run: adb devices. Expected: your device serial listed as 'device' (not 'unauthorized')."
+
+verify:
+  - kind: checkbox_confirmation
+    label: "adb devices shows device serial with status 'device' (not 'unauthorized' or 'offline')"
+
+fallback:
+  - kind: note
+    label: If status shows 'unauthorized'
+    text: "Check the device screen — the 'Allow USB debugging?' dialog may be waiting. If it disappeared, revoke USB debugging authorisations in Developer Options and reconnect."
+  - kind: note
+    label: If using an emulator instead
+    text: "Start an AVD in Android Studio. adb devices will list emulator-XXXX as 'device' automatically."

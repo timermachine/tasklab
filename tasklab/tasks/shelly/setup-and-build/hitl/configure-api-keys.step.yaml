@@ -1,0 +1,40 @@
+type: hitl_web_step
+id: configure_api_keys
+title: Configure AI API keys in Shelly settings (in-app)
+
+target:
+  service: shelly-app
+  entry_url: https://github.com/RYOITABASHI/Shelly/blob/main/README.md
+
+doc_check:
+  docs:
+    - label: Shelly README — Quick Start
+      url: https://github.com/RYOITABASHI/Shelly#quick-start
+
+ui_expectation:
+  page_name: Shelly Settings → API Keys
+  expected_labels:
+    - API Keys
+    - Claude
+    - Gemini
+
+actions:
+  - kind: note
+    label: Open Settings in Shelly
+    locator_hint: Gear icon in Agent Bar, or type "shelly config" in terminal pane
+    text: "Tap the gear icon in the Agent Bar at the top, or from the terminal pane run: shelly config"
+  - kind: note
+    label: Open API Keys
+    locator_hint: Settings → API Keys section
+    text: "Select API Keys. Paste your key for at least one provider (Claude, Gemini, Cerebras, Groq, or Perplexity)."
+  - kind: copy
+    label: Paste Claude API key
+    locator_hint: Claude field in API Keys
+  - kind: note
+    label: Keys are stored securely
+    locator_hint: N/A
+    text: "Keys are stored in expo-secure-store (encrypted). They are never written to logs or files."
+
+verify:
+  - kind: checkbox_confirmation
+    label: "At least one API key entered. Send a test message in the AI pane and confirm a response is received."
