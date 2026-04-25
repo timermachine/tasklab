@@ -113,11 +113,15 @@ function renderAction(a, si, ai) {
       <div class="abody"><div class="alabel">${esc(a.label)}</div>${hint}</div>
     </div>`;
 
-  if (a.kind === 'copy') return `
+  if (a.kind === 'copy') {
+    const copyVal = a.locator_hint || a.label;
+    return `
     <div class="action act-copy">
       <span class="akind">copy</span>
       <div class="abody"><div class="alabel">${esc(a.label)}</div>${hint}</div>
+      <button class="copy-btn" data-copy="${esc(copyVal)}" title="Copy to clipboard">⧉</button>
     </div>`;
+  }
 
   if (a.kind === 'note') return `
     <div class="action act-note">
@@ -190,6 +194,8 @@ function renderStep(step) {
       </div>`;
   }
 
+  const scriptMatch = step.text.match(/outputs\/scripts\/\S+\.sh/);
+  const copyCmd = scriptMatch ? `bash ${scriptMatch[0]}` : step.text.replace(/\.$/, '');
   return `
     <div class="step-card" id="sc-${step.idx}" data-step-idx="${step.idx}">
       <div class="step-header">
@@ -197,7 +203,10 @@ function renderStep(step) {
           <span class="snum">${n}</span>
           <span class="stext">${esc(step.text)}</span>
         </div>
-        <label class="done-label"><input type="checkbox" class="step-cb" data-cb-id="${cbId}" /><span>Done</span></label>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          ${scriptMatch ? `<button class="copy-btn" data-copy="${esc(copyCmd)}" title="Copy command">⧉</button>` : ''}
+          <label class="done-label"><input type="checkbox" class="step-cb" data-cb-id="${cbId}" /><span>Done</span></label>
+        </div>
       </div>
     </div>`;
 }
@@ -342,6 +351,11 @@ function buildHtml({ task, plan, manifest, steps, projectRoot, taskDirRel }) {
     .flabel{font-size:13px;font-weight:600;color:var(--warn)}
     .ftext{font-size:12px;color:var(--muted);margin-top:2px}
 
+    /* Copy button */
+    .copy-btn{flex-shrink:0;background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 8px;line-height:1.4;transition:color .15s,border-color .15s}
+    .copy-btn:hover{color:var(--text);border-color:var(--accent)}
+    .copy-btn.copied{color:var(--ok);border-color:rgba(52,211,153,.4)}
+
     /* Toast */
     .toast{position:fixed;right:16px;bottom:16px;background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:9px 14px;font-size:13px;display:none;z-index:100}
   </style>
@@ -431,6 +445,35 @@ function buildHtml({ task, plan, manifest, steps, projectRoot, taskDirRel }) {
     cb.checked = get(id);
     cb.addEventListener('change', function(){ set(id, cb.checked); });
   });
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var text = btn.dataset.copy;
+      function onCopied(){
+        var orig = btn.textContent;
+        btn.classList.add('copied');
+        btn.textContent = '✓';
+        setTimeout(function(){ btn.classList.remove('copied'); btn.textContent = orig; }, 1400);
+        toast('Copied to clipboard');
+      }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(onCopied).catch(function(){
+          fallbackCopy(text); onCopied();
+        });
+      } else {
+        fallbackCopy(text); onCopied();
+      }
+    });
+  });
+
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+  }
 
   // Visited link tracking
   function markVisited(url){

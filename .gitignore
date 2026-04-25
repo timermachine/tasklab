@@ -19,3 +19,9 @@ inputs.yaml
 
 # Git worktrees
 .worktrees/
+
+# Generated portal HTML (runtime artifact)
+tasklab-portal.html
+
+# Playwright CLI session snapshots
+.playwright-cli/
