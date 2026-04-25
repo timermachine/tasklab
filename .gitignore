@@ -16,3 +16,6 @@ inputs.yaml
 
 # macOS
 .DS_Store
+
+# Git worktrees
+.worktrees/
