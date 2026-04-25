@@ -23,7 +23,7 @@ STAGED_SCRIPTS="$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(
 
 if [[ -n "$STAGED_SCRIPTS" ]]; then
   while IFS= read -r f; do
-    if git show ":$f" 2>/dev/null | grep -qP 'curl\s+.*\|\s*(ba)?sh|wget\s+.*\|\s*(ba)?sh'; then
+    if git show ":$f" 2>/dev/null | grep -qE 'curl [^|]+\|[[:space:]]*(ba)?sh|wget [^|]+\|[[:space:]]*(ba)?sh'; then
       fail "$f: contains curl|bash or wget|bash pattern (never pipe untrusted content to shell)"
     fi
   done <<< "$STAGED_SCRIPTS"
@@ -101,7 +101,7 @@ if [[ "${TASKLAB_SNYK_SKIP:-0}" != "1" ]] && command -v snyk >/dev/null 2>&1; th
   fi
 fi
 
-# ── Result ────────────────────────────────────────────────────────────��────
+# ── Result ──────────────────────────────────────────────────────────────────
 
 if [[ "$FAILED" -eq 1 ]]; then
   echo "" >&2

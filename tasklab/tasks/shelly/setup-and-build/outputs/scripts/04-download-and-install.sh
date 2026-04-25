@@ -69,6 +69,8 @@ if [[ -z "$APK_PATH" ]]; then
   exit 1
 fi
 
+tasklab_apk_verify "$APK_PATH"
+
 echo "Installing APK: $APK_PATH"
 echo "  Device: $(echo "$DEVICES" | head -1)"
 adb install -r "$APK_PATH"

@@ -33,11 +33,11 @@ fi
 tasklab_snyk_check "$PROJECT_ROOT"
 
 echo "Installing dependencies in $PROJECT_ROOT ..."
-echo "  Command: pnpm install"
+echo "  Command: pnpm install --frozen-lockfile"
 echo "  Location: $PROJECT_ROOT"
 echo
 
-(cd "$PROJECT_ROOT" && pnpm install)
+(cd "$PROJECT_ROOT" && pnpm install --frozen-lockfile)
 
 echo
 echo "pnpm install OK: $PROJECT_ROOT"
