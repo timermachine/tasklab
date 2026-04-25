@@ -108,12 +108,17 @@ function parseTaskYamlBasics(taskYamlPath) {
 
 function loadRunbooks(repoRoot) {
   const runbooksFile = path.join(repoRoot, 'tasklab', 'runbooks.json');
-  /** @type {{name:string, task_dir:string, summary?:string}[]} */
+  /** @type {{name:string, task_dir:string, summary?:string, example_project_root?:string}[]} */
   const configured = readJsonIfExists(runbooksFile) || [];
   const byName = new Map();
   for (const rb of configured) {
     if (!rb?.name || !rb?.task_dir) continue;
-    byName.set(String(rb.name), { ...rb, name: String(rb.name), task_dir: String(rb.task_dir) });
+    byName.set(String(rb.name), {
+      ...rb,
+      name: String(rb.name),
+      task_dir: String(rb.task_dir),
+      example_project_root: rb.example_project_root ? String(rb.example_project_root) : '',
+    });
   }
   return { configured: Array.from(byName.values()), byName };
 }
@@ -134,6 +139,8 @@ function listRunbooks({ repoRoot, all }) {
     const title = meta.title || rb.summary || '';
     const suffix = title ? ` — ${title}` : '';
     process.stdout.write(`- ${rb.name} (${rb.task_dir})${suffix}\n`);
+    const exampleRoot = rb.example_project_root || `~/dev/${rb.name}`;
+    process.stdout.write(`  node ./runbook ${rb.name} for ${exampleRoot}\n`);
   }
 
   if (!all) {
@@ -256,4 +263,3 @@ function main() {
 }
 
 main();
-

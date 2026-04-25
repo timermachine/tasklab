@@ -2,27 +2,31 @@
   {
     "name": "supabase-setup",
     "task_dir": "tasklab/tasks/supabase/setup-project",
-    "summary": "Create/configure a Supabase project and scaffold a sample."
+    "summary": "Create/configure a Supabase project and scaffold a sample.",
+    "example_project_root": "~/dev/supabase-setup"
   },
   {
     "name": "google-wallet-generic-pass",
     "task_dir": "tasklab/tasks/google/wallet-passes/create-generic-pass",
-    "summary": "Create a Google Wallet Generic pass (class + object)."
+    "summary": "Create a Google Wallet Generic pass (class + object).",
+    "example_project_root": "~/dev/google-wallet-pass"
   },
   {
     "name": "apple-wallet-pass",
     "task_dir": "tasklab/tasks/apple/wallet-passes/ios-wallet",
-    "summary": "Create and sign an iOS Apple Wallet pass (.pkpass)."
+    "summary": "Create and sign an iOS Apple Wallet pass (.pkpass).",
+    "example_project_root": "~/dev/apple-wallet-pass"
   },
   {
     "name": "stripe-webhooks",
     "task_dir": "tasklab/tasks/stripe/webhooks/setup-and-verify",
-    "summary": "Set up Stripe webhook delivery + signature verification + replay pitfalls."
+    "summary": "Set up Stripe webhook delivery + signature verification + replay pitfalls.",
+    "example_project_root": "~/dev/stripe-webhooks"
   },
   {
     "name": "stripe-integration",
     "task_dir": "tasklab/tasks/stripe/account/setup-and-integrate",
-    "summary": "Stripe account setup + Checkout (payment) + webhooks."
+    "summary": "Stripe account setup + Checkout (payment) + webhooks.",
+    "example_project_root": "~/dev/stripe-integration"
   }
 ]
-

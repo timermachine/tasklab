@@ -84,6 +84,16 @@ If the operator must manually look up/copy any values (project ids, issuer ids, 
 
 `references/docs.md` must contain the exact deep links used by the task, not placeholders.
 
+## Mandatory “install transparency” (when scripts install tools/deps)
+
+If any script installs tools or dependencies automatically (local or global), it must print (before running the install):
+
+- What it’s about to install (package/tool names when feasible)
+- Where it’s being installed (directory for local installs; global vs user-scoped if global)
+- The exact command it is about to run
+
+And after success, print a short confirmation line (e.g. `npm install OK: <dir>`).
+
 ## Promotion rule
 
 Promote to TaskLib only after:

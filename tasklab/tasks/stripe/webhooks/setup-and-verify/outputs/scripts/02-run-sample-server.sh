@@ -38,8 +38,9 @@ tasklab_env_validate_stripe "$ENV_FILE"
 
 SAMPLE_DIR="$(cd "$TASKLAB_STRIPE_SCRIPT_DIR/../sample/node" && pwd)"
 if [[ ! -d "$SAMPLE_DIR/node_modules" ]]; then
-  echo "Installing sample dependencies (one-time)..." >&2
+  tasklab_core_notice_npm_install "$SAMPLE_DIR"
   (cd "$SAMPLE_DIR" && npm install)
+  echo "npm install OK: $SAMPLE_DIR" >&2
 fi
 
 node "$SAMPLE_DIR/server.mjs"

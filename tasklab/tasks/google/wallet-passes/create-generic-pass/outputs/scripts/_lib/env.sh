@@ -11,6 +11,8 @@ fi
 
 # shellcheck disable=SC1091
 source "$TASKLAB_ROOT/tasklab/lib/bash/env.sh"
+# shellcheck disable=SC1091
+source "$TASKLAB_ROOT/tasklab/lib/bash/install.sh"
 
 tasklab_env_precheck() {
   tasklab_core_env_precheck "$1"
