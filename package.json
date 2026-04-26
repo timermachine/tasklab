@@ -1,0 +1,28 @@
+{
+  "name": "tasklab",
+  "version": "0.1.0",
+  "description": "HITL task runner for service integrations — run by humans, guided by agents",
+  "bin": {
+    "tasklab": "./bin/tasklab.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "templates/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "tasklab",
+    "hitl",
+    "task-runner",
+    "service-integration",
+    "cli"
+  ],
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timermachine/tasklab.git"
+  }
+}
