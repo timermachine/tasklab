@@ -1,5 +1,12 @@
 # TaskLab
 
+![Status](https://img.shields.io/badge/status-pre--alpha-orange) ![Version](https://img.shields.io/badge/version-0.1-lightgrey)
+
+> [!WARNING]
+> **Pre-alpha — not ready for use.** The CLI and task runner are under active development. Watch or star to follow progress.
+
+---
+
 Integrating a third-party service is never just one step. It's a dozen browser tabs, a handful of CLI commands, three copy-pastes from dashboards you can never find again, and a webhook secret you typed wrong the first time.
 
 TaskLab turns that into a single command.
