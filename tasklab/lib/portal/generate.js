@@ -6,6 +6,7 @@
 //   node generate.js --task-dir <dir> [--project-root <dir>] [--out <path>]
 //
 // Requires: yq (for YAML → JSON), node (no npm install needed)
+// Note: generated portal loads Tailwind CSS from CDN — requires internet.
 
 'use strict';
 
@@ -73,101 +74,119 @@ function esc(s) {
 }
 
 const MATURITY_LABELS = ['Created', 'Works', 'Hardened'];
-const MATURITY_COLORS = ['muted', 'warn', 'ok'];
+
+const BADGE = {
+  ok:   'text-emerald-400 border-emerald-400/30 bg-emerald-400/10',
+  warn: 'text-amber-400  border-amber-400/30  bg-amber-400/10',
+  bad:  'text-rose-400   border-rose-400/30   bg-rose-400/10',
+  muted:'text-gray-400   border-gray-500/25   bg-gray-500/5',
+};
+
+function badge(colorKey, text) {
+  return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${BADGE[colorKey] ?? BADGE.muted}">${esc(text)}</span>`;
+}
 
 function renderVersions(v) {
-  if (!v || !Object.keys(v).length) return '<div class="versions-none">No runs recorded yet — update manifest.yaml after first run.</div>';
-  return `<div class="versions-grid">${
+  if (!v || !Object.keys(v).length)
+    return '<div class="text-gray-400 text-xs italic">No runs recorded yet — update manifest.yaml after first run.</div>';
+  return `<div class="grid gap-2" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">${
     Object.entries(v).map(([k, val]) =>
-      `<div class="version-row"><span class="vk">${esc(k)}</span><span class="vv">${esc(val)}</span></div>`
+      `<div class="flex flex-col gap-px">
+        <span class="text-xs text-gray-400 font-mono">${esc(k)}</span>
+        <span class="text-sm font-mono">${esc(val)}</span>
+      </div>`
     ).join('')
   }</div>`;
 }
 
 function renderDocLinks(docs) {
   if (!docs?.length) return '';
-  return `<div class="doc-links"><span class="doc-links-label">Docs</span>${
-    docs.map(d =>
-      `<a class="doc-link trackable" href="${esc(d.url)}" target="_blank" rel="noreferrer" data-link-id="${esc(d.url)}">${esc(d.label)}</a>`
-    ).join('')
-  }</div>`;
+  return `<div class="flex flex-wrap gap-2 items-center">
+    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Docs</span>
+    ${docs.map(d =>
+      `<a class="text-xs px-2.5 py-0.5 border border-gray-700 rounded-full text-blue-400 trackable doc-link" href="${esc(d.url)}" target="_blank" rel="noreferrer" data-link-id="${esc(d.url)}">${esc(d.label)}</a>`
+    ).join('')}
+  </div>`;
 }
 
+const KIND_BADGE = {
+  navigate: 'bg-blue-400/10   text-blue-400',
+  click:    'bg-amber-400/10  text-amber-400',
+  copy:     'bg-emerald-400/10 text-emerald-400',
+  note:     'bg-sky-400/10    text-sky-400',
+  verify:   'bg-violet-400/10 text-violet-400',
+};
+
 function renderAction(a, si, ai) {
-  const hint = a.locator_hint ? `<div class="ahint">${esc(a.locator_hint)}</div>` : '';
-  const note = a.text ? `<div class="anote">${esc(a.text)}</div>` : '';
+  const kindCls = KIND_BADGE[a.kind] ?? 'bg-gray-700 text-gray-400';
+  const hint = a.locator_hint
+    ? `<div class="text-xs text-gray-400 mt-0.5">${esc(a.locator_hint)}</div>`
+    : '';
+  const note = a.text
+    ? `<div class="text-xs text-gray-400 mt-1 border-l-2 border-sky-400 pl-2 leading-relaxed">${esc(a.text)}</div>`
+    : '';
 
-  if (a.kind === 'navigate') return `
-    <div class="action act-navigate">
-      <span class="akind">navigate</span>
-      <div class="abody">
-        <div class="alabel">${esc(a.label)}</div>
-        <a class="aurl trackable" href="${esc(a.url)}" target="_blank" rel="noreferrer" data-link-id="${esc(a.url)}">${esc(a.url)}</a>
-        ${hint}
-      </div>
-    </div>`;
+  const kindBadge = `<span class="flex-shrink-0 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mt-0.5 ${kindCls}">${esc(a.kind)}</span>`;
+  const wrap = (inner) =>
+    `<div class="flex gap-2.5 items-start p-2 rounded-lg border border-gray-800 bg-gray-800/60">${kindBadge}<div class="min-w-0 flex-1">${inner}</div></div>`;
 
-  if (a.kind === 'click') return `
-    <div class="action act-click">
-      <span class="akind">click</span>
-      <div class="abody"><div class="alabel">${esc(a.label)}</div>${hint}</div>
-    </div>`;
+  if (a.kind === 'navigate') return wrap(`
+    <div class="text-sm font-semibold mb-0.5">${esc(a.label)}</div>
+    <a class="text-xs font-mono break-all text-blue-400 trackable" href="${esc(a.url)}" target="_blank" rel="noreferrer" data-link-id="${esc(a.url)}">${esc(a.url)}</a>
+    ${hint}`);
 
   if (a.kind === 'copy') {
     const copyVal = a.locator_hint || a.label;
-    return `
-    <div class="action act-copy">
-      <span class="akind">copy</span>
-      <div class="abody"><div class="alabel">${esc(a.label)}</div>${hint}</div>
-      <button class="copy-btn" data-copy="${esc(copyVal)}" title="Copy to clipboard">⧉</button>
+    return `<div class="flex gap-2.5 items-start p-2 rounded-lg border border-gray-800 bg-gray-800/60">
+      ${kindBadge}
+      <div class="min-w-0 flex-1">
+        <div class="text-sm font-semibold mb-0.5">${esc(a.label)}</div>
+        ${hint}
+      </div>
+      <button class="copy-btn flex-shrink-0 bg-transparent border border-gray-700 rounded text-gray-400 cursor-pointer text-xs px-2 py-0.5 leading-snug" data-copy="${esc(copyVal)}" title="Copy to clipboard">⧉</button>
     </div>`;
   }
 
-  if (a.kind === 'note') return `
-    <div class="action act-note">
-      <span class="akind">note</span>
-      <div class="abody"><div class="alabel">${esc(a.label)}</div>${hint}${note}</div>
-    </div>`;
-
-  if (a.kind === 'verify') return `
-    <div class="action act-verify">
-      <span class="akind">verify</span>
-      <div class="abody"><div class="alabel">${esc(a.label)}</div>${hint}</div>
-    </div>`;
+  if (a.kind === 'click')  return wrap(`<div class="text-sm font-semibold mb-0.5">${esc(a.label)}</div>${hint}`);
+  if (a.kind === 'note')   return wrap(`<div class="text-sm font-semibold mb-0.5">${esc(a.label)}</div>${hint}${note}`);
+  if (a.kind === 'verify') return wrap(`<div class="text-sm font-semibold mb-0.5">${esc(a.label)}</div>${hint}`);
 
   return '';
 }
 
 function renderVerifies(verifies, si) {
   if (!verifies?.length) return '';
-  return `<div class="verify-section">
-    <div class="vsection-title">Verify</div>
+  return `<div class="border border-violet-400/20 rounded-lg p-3 bg-violet-400/[0.04]">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-violet-400 mb-2">Verify</div>
     ${verifies.map((v, vi) => {
       const id = `verify-${si}-${vi}`;
-      return `<label class="verify-item"><input type="checkbox" class="verify-cb" data-cb-id="${id}" /><span>${esc(v.label)}</span></label>`;
+      return `<label class="verify-item flex items-start gap-2 cursor-pointer text-sm mb-1.5 last:mb-0">
+        <input type="checkbox" class="verify-cb accent-violet-400 w-4 h-4 mt-0.5 flex-shrink-0 cursor-pointer" data-cb-id="${id}" />
+        <span class="text-gray-300">${esc(v.label)}</span>
+      </label>`;
     }).join('')}
   </div>`;
 }
 
 function renderFallbacks(fallbacks) {
   if (!fallbacks?.length) return '';
-  return `<div class="fallback-section">
-    <div class="fsection-title">Fallback</div>
+  return `<div class="border border-amber-400/20 rounded-lg p-3 bg-amber-400/[0.04]">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-2">Fallback</div>
     ${fallbacks.map(f => `
-      <div class="fallback-item">
-        <div class="flabel">${esc(f.label)}</div>
-        ${f.text ? `<div class="ftext">${esc(f.text)}</div>` : ''}
+      <div class="mb-1.5 last:mb-0">
+        <div class="text-sm font-semibold text-amber-400">${esc(f.label)}</div>
+        ${f.text ? `<div class="text-xs text-gray-400 mt-0.5">${esc(f.text)}</div>` : ''}
       </div>`).join('')}
   </div>`;
 }
 
 function renderHitlBody(step) {
   const h = step.hitl;
-  if (!h) return `<div class="hitl-missing">Step file not found: ${esc(step.relFile)}</div>`;
+  if (!h) return `<div class="text-xs text-rose-400">Step file not found: ${esc(step.relFile)}</div>`;
   return `
     ${renderDocLinks(h.doc_check?.docs)}
-    ${h.ui_expectation?.page_name ? `<div class="ui-exp">Page: <strong>${esc(h.ui_expectation.page_name)}</strong></div>` : ''}
-    <div class="actions-list">${(h.actions ?? []).map((a, ai) => renderAction(a, step.idx, ai)).join('')}</div>
+    ${h.ui_expectation?.page_name ? `<div class="text-xs text-gray-400">Page: <strong class="text-gray-200">${esc(h.ui_expectation.page_name)}</strong></div>` : ''}
+    <div class="flex flex-col gap-1.5">${(h.actions ?? []).map((a, ai) => renderAction(a, step.idx, ai)).join('')}</div>
     ${renderVerifies(h.verify, step.idx)}
     ${renderFallbacks(h.fallback)}
   `;
@@ -177,35 +196,39 @@ function renderStep(step) {
   const n = step.idx + 1;
   const cbId = `step-${step.idx}`;
 
+  const doneLabel = `<label class="done-label flex-shrink-0 flex items-center gap-1.5 cursor-pointer select-none text-xs text-gray-400">
+    <input type="checkbox" class="step-cb accent-emerald-400 w-4 h-4 cursor-pointer" data-cb-id="${cbId}" /><span>Done</span>
+  </label>`;
+
   if (step.type === 'hitl') {
     const title = step.hitl?.title ?? step.relFile;
     return `
-      <div class="step-card hitl-card" id="sc-${step.idx}" data-step-idx="${step.idx}">
-        <div class="step-header">
-          <div class="shl">
-            <span class="snum">${n}</span>
-            <span class="hitl-badge">HITL</span>
-            ${step.optional ? '<span class="opt-badge">optional</span>' : ''}
-            <span class="stitle">${esc(title)}</span>
+      <div class="step-card bg-gray-900 border border-gray-800 border-l-4 border-l-violet-400 rounded-xl mb-2 overflow-hidden" id="sc-${step.idx}" data-step-idx="${step.idx}">
+        <div class="step-header flex items-start justify-between gap-3 p-3">
+          <div class="flex items-start gap-2 min-w-0 flex-1">
+            <span class="snum flex-shrink-0 w-[22px] h-[22px] rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-[11px] font-bold text-gray-400">${n}</span>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[11px] font-semibold text-violet-400 border border-violet-400/30 bg-violet-400/[0.08] flex-shrink-0">HITL</span>
+            ${step.optional ? '<span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[11px] text-gray-400 border border-gray-600/40 flex-shrink-0">optional</span>' : ''}
+            <span class="font-semibold text-sm leading-snug">${esc(title)}</span>
           </div>
-          <label class="done-label"><input type="checkbox" class="step-cb" data-cb-id="${cbId}" /><span>Done</span></label>
+          ${doneLabel}
         </div>
-        <div class="step-body">${renderHitlBody(step)}</div>
+        <div class="px-3.5 pb-3.5 pl-11 flex flex-col gap-2.5">${renderHitlBody(step)}</div>
       </div>`;
   }
 
   const scriptMatch = step.text.match(/outputs\/scripts\/\S+\.sh/);
   const copyCmd = scriptMatch ? `bash ${scriptMatch[0]}` : step.text.replace(/\.$/, '');
   return `
-    <div class="step-card" id="sc-${step.idx}" data-step-idx="${step.idx}">
-      <div class="step-header">
-        <div class="shl">
-          <span class="snum">${n}</span>
-          <span class="stext">${esc(step.text)}</span>
+    <div class="step-card bg-gray-900 border border-gray-800 rounded-xl mb-2 overflow-hidden" id="sc-${step.idx}" data-step-idx="${step.idx}">
+      <div class="step-header flex items-start justify-between gap-3 p-3">
+        <div class="flex items-start gap-2 min-w-0 flex-1">
+          <span class="snum flex-shrink-0 w-[22px] h-[22px] rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-[11px] font-bold text-gray-400">${n}</span>
+          <span class="text-[13px] leading-relaxed text-gray-200">${esc(step.text)}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          ${scriptMatch ? `<button class="copy-btn" data-copy="${esc(copyCmd)}" title="Copy command">⧉</button>` : ''}
-          <label class="done-label"><input type="checkbox" class="step-cb" data-cb-id="${cbId}" /><span>Done</span></label>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          ${scriptMatch ? `<button class="copy-btn bg-transparent border border-gray-700 rounded text-gray-400 cursor-pointer text-xs px-2 py-0.5 leading-snug" data-copy="${esc(copyCmd)}" title="Copy command">⧉</button>` : ''}
+          ${doneLabel}
         </div>
       </div>
     </div>`;
@@ -225,180 +248,84 @@ function buildHtml({ task, plan, manifest, steps, projectRoot, taskDirRel }) {
   const lastRun = runs[runs.length - 1] ?? null;
   const versions = lastRun?.versions ?? null;
 
-  const matColor = MATURITY_COLORS[maturity] ?? 'muted';
   const matLabel = MATURITY_LABELS[maturity] ?? `Level ${maturity}`;
+  const matColor = ['muted', 'warn', 'ok'][maturity] ?? 'muted';
   const outcomeColor = lastRun?.outcome === 'success' ? 'ok' : lastRun?.outcome === 'failed' ? 'bad' : 'warn';
 
   const total = steps.length;
   const stepsHtml = steps.map(renderStep).join('\n');
 
-  const prereqHtml = prereqs.map(p => `<li>${esc(p)}</li>`).join('');
-  const assumeHtml = assumptions.map(a => `<li>${esc(a)}</li>`).join('');
+  const prereqHtml = prereqs.map(p => `<li class="mb-1">${esc(p)}</li>`).join('');
+  const assumeHtml = assumptions.map(a => `<li class="mb-1">${esc(a)}</li>`).join('');
 
   return `<!doctype html>
-<html lang="en">
+<html lang="en" class="bg-gray-950">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>TaskLab — ${esc(title)}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root {
-      --bg:#0b0f17; --surf:#111827; --surf2:#1a2233; --text:#e5e7eb;
-      --muted:#9ca3af; --border:#1f2937; --accent:#60a5fa;
-      --ok:#34d399; --warn:#fbbf24; --bad:#fb7185; --hitl:#a78bfa; --note-c:#38bdf8;
-      --r:10px;
-    }
-    *,*::before,*::after{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif}
-    a{color:var(--accent);text-decoration:none}
-    a:hover{text-decoration:underline}
-    .trackable.visited{color:var(--ok)}
-    .trackable.visited::after{content:' ✓';font-size:11px;opacity:.8}
-    .doc-link.visited{border-color:rgba(52,211,153,.3)}
-
-    .wrap{max-width:860px;margin:0 auto;padding:24px 16px 60px}
-
-    /* Header */
-    .task-title{font-size:22px;font-weight:700;margin:0 0 10px}
-    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid}
-    .badge.ok{color:var(--ok);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.07)}
-    .badge.warn{color:var(--warn);border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.07)}
-    .badge.bad{color:var(--bad);border-color:rgba(251,113,133,.3);background:rgba(251,113,133,.07)}
-    .badge.muted{color:var(--muted);border-color:rgba(156,163,175,.25);background:rgba(156,163,175,.05)}
-    .task-summary{color:var(--muted);font-size:14px;margin-bottom:8px}
-    .task-meta{font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
-    code{font-family:ui-monospace,monospace;font-size:12px}
-
-    /* Progress */
-    .prog-wrap{background:var(--surf);border:1px solid var(--border);border-radius:999px;height:8px;margin:18px 0 6px;overflow:hidden}
-    .prog-fill{height:100%;background:var(--ok);border-radius:999px;transition:width .3s;width:0}
-    .prog-text{font-size:12px;color:var(--muted);margin-bottom:20px}
-
-    /* Cards */
-    .card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:14px}
-    .card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
-
-    /* Versions */
-    .versions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
-    .version-row{display:flex;flex-direction:column;gap:1px}
-    .vk{font-size:11px;color:var(--muted);font-family:ui-monospace,monospace}
-    .vv{font-size:13px;font-family:ui-monospace,monospace}
-    .versions-none{color:var(--muted);font-size:12px;font-style:italic}
-
-    /* Context */
-    .context-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    @media(max-width:600px){.context-cols{grid-template-columns:1fr}}
-    .context-cols h3{margin:0 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-    .context-cols ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted)}
-    .context-cols ul li{margin-bottom:3px}
-
-    /* Steps */
-    .section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 10px}
-    .step-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s}
-    .step-card.done{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.03)}
-    .hitl-card{border-left:3px solid var(--hitl)}
-    .step-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:11px 14px}
-    .shl{display:flex;align-items:flex-start;gap:9px;min-width:0;flex:1}
-    .snum{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--surf2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted)}
-    .step-card.done .snum{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.4);color:var(--ok)}
-    .hitl-badge{flex-shrink:0;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:600;color:var(--hitl);border:1px solid rgba(167,139,250,.3);background:rgba(167,139,250,.08)}
-    .opt-badge{flex-shrink:0;padding:2px 7px;border-radius:999px;font-size:11px;color:var(--muted);border:1px solid rgba(156,163,175,.2)}
-    .stitle{font-weight:600;font-size:14px;line-height:1.4}
-    .stext{font-size:13px;line-height:1.5}
-    .done-label{flex-shrink:0;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;font-size:12px;color:var(--muted)}
-    .done-label input{width:16px;height:16px;accent-color:var(--ok);cursor:pointer}
-
-    /* Step body */
-    .step-body{padding:0 14px 14px 45px;display:flex;flex-direction:column;gap:10px}
-
-    /* Doc links */
-    .doc-links{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-    .doc-links-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-    .doc-link{font-size:12px;padding:2px 10px;border:1px solid var(--border);border-radius:999px}
-
-    /* UI expectation */
-    .ui-exp{font-size:12px;color:var(--muted)}
-    .ui-exp strong{color:var(--text)}
-
-    /* Actions */
-    .actions-list{display:flex;flex-direction:column;gap:6px}
-    .action{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surf2)}
-    .akind{flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:4px;margin-top:2px}
-    .act-navigate .akind{background:rgba(96,165,250,.12);color:var(--accent)}
-    .act-click .akind{background:rgba(251,191,36,.1);color:var(--warn)}
-    .act-copy .akind{background:rgba(52,211,153,.1);color:var(--ok)}
-    .act-note .akind{background:rgba(56,189,248,.1);color:var(--note-c)}
-    .act-verify .akind{background:rgba(167,139,250,.1);color:var(--hitl)}
-    .abody{min-width:0;flex:1}
-    .alabel{font-size:13px;font-weight:600;margin-bottom:2px}
-    .ahint{font-size:12px;color:var(--muted);margin-top:2px}
-    .anote{font-size:12px;color:var(--muted);margin-top:4px;border-left:2px solid var(--note-c);padding-left:8px;line-height:1.5}
-    .aurl{font-size:12px;font-family:ui-monospace,monospace;word-break:break-all;display:block;margin-top:2px}
-    .hitl-missing{font-size:12px;color:var(--bad)}
-
-    /* Verify */
-    .verify-section{border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:10px 12px;background:rgba(167,139,250,.04)}
-    .vsection-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--hitl);margin-bottom:8px}
-    .verify-item{display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:13px;margin-bottom:6px}
-    .verify-item:last-child{margin-bottom:0}
-    .verify-item input{width:15px;height:15px;margin-top:2px;accent-color:var(--hitl);cursor:pointer;flex-shrink:0}
-
-    /* Fallback */
-    .fallback-section{border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:10px 12px;background:rgba(251,191,36,.04)}
-    .fsection-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:8px}
-    .fallback-item{margin-bottom:6px}
-    .flabel{font-size:13px;font-weight:600;color:var(--warn)}
-    .ftext{font-size:12px;color:var(--muted);margin-top:2px}
-
-    /* Copy button */
-    .copy-btn{flex-shrink:0;background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 8px;line-height:1.4;transition:color .15s,border-color .15s}
-    .copy-btn:hover{color:var(--text);border-color:var(--accent)}
-    .copy-btn.copied{color:var(--ok);border-color:rgba(52,211,153,.4)}
-
-    /* Toast */
-    .toast{position:fixed;right:16px;bottom:16px;background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:9px 14px;font-size:13px;display:none;z-index:100}
+    body { background: #030712; color: #e5e7eb; }
+    /* Visited link tracking */
+    .trackable.visited { color: #34d399; }
+    .trackable.visited::after { content: ' ✓'; font-size: 11px; opacity: .8; }
+    .doc-link.visited { border-color: rgba(52,211,153,.3); }
+    /* Step done state */
+    .step-card.done { border-color: rgba(52,211,153,.3); background: rgba(52,211,153,.03); }
+    .step-card.done .snum { background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.4); color: #34d399; }
+    /* Copy button feedback */
+    .copy-btn:hover { color: #e5e7eb; border-color: #60a5fa; }
+    .copy-btn.copied { color: #34d399; border-color: rgba(52,211,153,.4); }
   </style>
 </head>
 <body>
-<div class="wrap">
+<div class="max-w-3xl mx-auto px-4 py-6 pb-16">
 
-  <div style="margin-bottom:20px">
-    <div class="task-title">${esc(title)}</div>
-    <div class="badges">
-      <span class="badge ${matColor}">Maturity ${maturity} — ${esc(matLabel)}</span>
+  <div class="mb-5">
+    <h1 class="text-2xl font-bold mb-2.5 text-white">${esc(title)}</h1>
+    <div class="flex flex-wrap gap-2 mb-2.5">
+      ${badge(matColor, `Maturity ${maturity} — ${matLabel}`)}
       ${lastRun
-        ? `<span class="badge ${outcomeColor}">Last run: ${esc(lastRun.date)} — ${esc(lastRun.outcome)}</span>`
-        : '<span class="badge muted">Never run</span>'}
+        ? badge(outcomeColor, `Last run: ${lastRun.date} — ${lastRun.outcome}`)
+        : badge('muted', 'Never run')}
     </div>
-    ${summary ? `<div class="task-summary">${esc(summary)}</div>` : ''}
-    <div class="task-meta">
-      <span>project root: <code>${esc(projectRoot)}</code></span>
-      <span>task: <code>${esc(taskDirRel)}</code></span>
+    ${summary ? `<div class="text-gray-400 text-sm mb-2">${esc(summary)}</div>` : ''}
+    <div class="text-xs text-gray-500 flex flex-wrap gap-4">
+      <span>project root: <code class="font-mono text-gray-400">${esc(projectRoot)}</code></span>
+      <span>task: <code class="font-mono text-gray-400">${esc(taskDirRel)}</code></span>
     </div>
   </div>
 
-  <div class="prog-wrap"><div class="prog-fill" id="pf"></div></div>
-  <div class="prog-text" id="pt">0 of ${total} steps done</div>
+  <div class="bg-gray-900 border border-gray-800 rounded-full h-2 mt-4 mb-1.5 overflow-hidden">
+    <div class="h-full bg-emerald-400 rounded-full transition-all duration-300 w-0" id="pf"></div>
+  </div>
+  <div class="text-xs text-gray-500 mb-5" id="pt">0 of ${total} steps done</div>
 
-  <div class="card">
-    <div class="card-title">Last Run Versions</div>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
+    <div class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2.5">Last Run Versions</div>
     ${renderVersions(versions)}
   </div>
 
   ${(prereqHtml || assumeHtml) ? `
-  <div class="card">
-    <div class="context-cols">
-      ${prereqHtml ? `<div><h3>Prerequisites</h3><ul>${prereqHtml}</ul></div>` : ''}
-      ${assumeHtml ? `<div><h3>Assumptions</h3><ul>${assumeHtml}</ul></div>` : ''}
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
+    <div class="grid gap-4 ${prereqHtml && assumeHtml ? 'sm:grid-cols-2' : ''}">
+      ${prereqHtml ? `<div>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Prerequisites</h3>
+        <ul class="pl-4 text-sm text-gray-400 list-disc">${prereqHtml}</ul>
+      </div>` : ''}
+      ${assumeHtml ? `<div>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Assumptions</h3>
+        <ul class="pl-4 text-sm text-gray-400 list-disc">${assumeHtml}</ul>
+      </div>` : ''}
     </div>
   </div>` : ''}
 
-  <div class="section-title">Steps (${total})</div>
+  <div class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2.5">Steps (${total})</div>
   ${stepsHtml}
 
 </div>
-<div class="toast" id="toast"></div>
+<div class="fixed right-4 bottom-4 bg-gray-900 border border-gray-800 rounded-xl px-3.5 py-2 text-sm text-gray-200 hidden z-50" id="toast"></div>
 
 <script>
 (function(){
@@ -412,9 +339,9 @@ function buildHtml({ task, plan, manifest, steps, projectRoot, taskDirRel }) {
 
   function toast(msg){
     var el = document.getElementById('toast');
-    el.textContent = msg; el.style.display = 'block';
+    el.textContent = msg; el.classList.remove('hidden');
     clearTimeout(window.__tlt);
-    window.__tlt = setTimeout(function(){ el.style.display = 'none'; }, 1400);
+    window.__tlt = setTimeout(function(){ el.classList.add('hidden'); }, 1400);
   }
 
   function updateProgress(){

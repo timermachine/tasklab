@@ -46,7 +46,7 @@ node "$GENERATOR" \
 
 if [[ "$AUTO_OPEN" == "true" ]]; then
   command -v open &>/dev/null && open "$OUT_FILE" || true
-else
+elif [[ -t 0 ]]; then
   printf "\nOpen in browser? [y/N]: "
   read -r _ans
   if [[ "$_ans" == "y" || "$_ans" == "Y" ]]; then
