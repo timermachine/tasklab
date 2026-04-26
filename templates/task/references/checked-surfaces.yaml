@@ -1,0 +1,14 @@
+service: "{{SERVICE}}"
+verified_on: "YYYY-MM-DD"
+tool_versions:
+  # Add relevant tool versions
+  # node: ""
+  # service_cli: ""
+surfaces_checked:
+  # List surfaces actually checked (not just assumed)
+  # - official_docs
+  # - dashboard
+  # - cli
+  # - api
+notes:
+  - "TODO: record what you checked and any version-specific findings"

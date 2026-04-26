@@ -1,0 +1,6 @@
+# Copy this file to inputs.yaml and fill in your values.
+# inputs.yaml is gitignored — do not commit it.
+# Secrets go in your project .env (also gitignored), not here.
+#
+# {{SERVICE_UPPER}}_API_KEY: "your-key-here"
+# {{SERVICE_UPPER}}_OTHER_VALUE: "your-value-here"

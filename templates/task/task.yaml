@@ -1,0 +1,43 @@
+dsl_version: "tasklab.hitl.v0.1"
+
+task:
+  id: "{{TASK_ID}}"
+  title: "{{TITLE}}"
+  summary: "TODO: one sentence describing what this task sets up end-to-end."
+  owner: "community"
+  tags:
+    - "{{SERVICE}}"
+    - "setup"
+    - "hitl"
+
+context:
+  product: "{{SERVICE}}"
+  environment: "dev"
+  assumptions:
+    - "TODO: list assumptions (e.g. operator has an account, local toolchain available)"
+  prerequisites:
+    - "TODO: list required tools (e.g. Node.js, service CLI)"
+
+inputs:
+  - name: "project_root"
+    type: "string"
+    required: true
+  # Add more inputs as needed:
+  # - name: "example_input"
+  #   type: "string"
+  #   required: true
+
+outputs:
+  - name: "env_file_path"
+    type: "string"
+  # Add outputs as needed:
+  # - name: "example_output"
+  #   type: "string"
+
+completion:
+  success_criteria:
+    - "TODO: list verifiable success criteria (no secrets in criteria text)"
+  evidence_required:
+    - "docs checked (verified_on + URLs)"
+    - "scripts run without error"
+    - "outputs/reports/setup-report.md completed"

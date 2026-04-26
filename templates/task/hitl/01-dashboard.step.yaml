@@ -1,0 +1,42 @@
+type: hitl_web_step
+id: dashboard_step_01
+title: "TODO: step title (e.g. Collect API keys)"
+
+account_required:
+  service: "{{SERVICE}}"
+  signup_url: "TODO: https://service.com/register"
+  note: "TODO: account requirements (free tier? credit card?)"
+
+target:
+  service: "{{SERVICE}}"
+  entry_url: "TODO: https://dashboard.service.com/settings/api"
+
+doc_check:
+  docs:
+    - label: "TODO: doc section name"
+      url: "TODO: https://docs.service.com/api-keys"
+
+ui_expectation:
+  page_name: "TODO: Settings / API Keys"
+  expected_labels:
+    - "TODO: label you expect to see on the page"
+
+actions:
+  - kind: navigate
+    label: "Open dashboard"
+    url: "TODO: https://dashboard.service.com/settings/api"
+  - kind: copy
+    label: "Copy API key"
+    locator_hint: "TODO: exact label of the field"
+  - kind: note
+    label: "Persist value (copy once)"
+    text: "Paste into your project .env (gitignored): {{SERVICE_UPPER}}_API_KEY="
+
+clipboard:
+  - label: "API key"
+    value_from: "{{SERVICE}}_api_key"
+    sensitive: true
+
+verify:
+  - kind: checkbox_confirmation
+    label: "Value recorded in project .env (gitignored) and noted in outputs/reports/setup-report.md"

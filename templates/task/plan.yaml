@@ -1,0 +1,16 @@
+decision:
+  service: "{{SERVICE}}"
+  chosen_surfaces:
+    - step: "TODO: describe step"
+      surface: "hitl_web"
+      reason: "TODO: why HITL (no API/CLI surface exists for this step)"
+    # Surface options: hitl_web | local_script | api | cli | mcp
+    # Always justify HITL — document why automation was not possible
+
+steps:
+  - "Review references/; update research.md + references/checked-surfaces.yaml (verified_on + versions)."
+  - "Run outputs/scripts/00-hitl-links.sh (prints deep links + copy-once guidance)."
+  - "Run outputs/scripts/01-preflight.sh."
+  - "TODO: add main setup steps"
+  - "Run outputs/scripts/99-run-tests.sh."
+  - "Complete outputs/reports/setup-report.md with evidence (no secrets)."

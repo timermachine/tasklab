@@ -1,0 +1,13 @@
+maturity: 0  # 0=created, 1=works end-to-end, 2=multiple runs + improved
+
+runs: []
+# runs:
+#   - date: "YYYY-MM-DD"
+#     outcome: "success"  # success | partial | failed
+#     notes: ""
+#     versions:
+#       node: ""
+#       cli: ""
+#       docs_verified_on: "YYYY-MM-DD"
+
+promotion_notes: ""
