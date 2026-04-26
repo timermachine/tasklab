@@ -42,9 +42,9 @@ fi
 mkdir -p "$PROJECT_ROOT"
 
 if [[ -f "$ENV_FILE" && "$FORCE" != "true" ]]; then
-  echo "Env file already exists: $ENV_FILE" >&2
-  echo "Refusing to overwrite. Re-run with --force if you want to replace it." >&2
-  exit 1
+  echo "Env file already exists: $ENV_FILE (skip init — already configured)"
+  echo "Re-run with --force to overwrite."
+  exit 0
 fi
 
 cp -p "$TEMPLATE" "$ENV_FILE"
