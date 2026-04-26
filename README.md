@@ -39,29 +39,23 @@ tasklab run stripe/account/setup-and-integrate
 ## Install
 
 ```bash
-# Clone TaskLab
-git clone https://github.com/timermachine/tasklab.git
-cd tasklab
-
-# Install the CLI globally
-npm install -g ./cli
-
-# Verify
-tasklab --version
+npm install -g tasklab
 ```
-
----
 
 ## Quick start
 
 ```bash
-# See all available tasks (synced from TaskHub)
-tasklab list
+# In any project directory — syncs TaskHub and shows an interactive picker
+tasklab
+```
 
-# Run a task
+TaskHub tasks and your own local tasks are shown as two clearly separated groups. Pick one and it runs.
+
+```bash
+# Or run directly by name (useful in scripts and with AI agents)
 tasklab run stripe/account/setup-and-integrate
 
-# Run against a specific project directory
+# Specify where credentials and generated code should go
 tasklab run stripe/account/setup-and-integrate --project-root ~/my-app
 ```
 
