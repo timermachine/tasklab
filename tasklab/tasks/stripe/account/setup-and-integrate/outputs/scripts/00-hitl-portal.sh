@@ -10,7 +10,13 @@ AUTO_OPEN=false
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TASKLAB_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || { echo "Error: not in a git repo" >&2; exit 1; })"
 TASK_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-GENERATOR="$TASKLAB_ROOT/tasklab/lib/portal/generate.js"
+if [[ -f "$TASKLAB_ROOT/tasklab/lib/portal/generate.js" ]]; then
+  GENERATOR="$TASKLAB_ROOT/tasklab/lib/portal/generate.js"
+elif [[ -f "$TASKLAB_ROOT/lib/portal/generate.js" ]]; then
+  GENERATOR="$TASKLAB_ROOT/lib/portal/generate.js"
+else
+  GENERATOR=""
+fi
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -28,7 +34,10 @@ fi
 
 command -v node &>/dev/null || { echo "Error: node is required." >&2; exit 1; }
 command -v yq   &>/dev/null || { echo "Error: yq is required."   >&2; exit 1; }
-[[ -f "$GENERATOR" ]] || { echo "Error: generator not found at $GENERATOR" >&2; exit 1; }
+if [[ -z "$GENERATOR" ]]; then
+  echo "Portal generator not available — skipping (run 00-hitl-links.sh for links)"
+  exit 0
+fi
 
 node "$GENERATOR" \
   --task-dir     "$TASK_DIR" \

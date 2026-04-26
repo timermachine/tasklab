@@ -22,6 +22,7 @@ if [[ -z "$TASKLAB_ROOT" ]]; then
   echo "Unable to locate TaskLab or TaskHub root (required to source shared libs)." >&2
   exit 1
 fi
+export TASKLAB_ROOT="$_TASKLAB_GIT_ROOT"
 
 # TaskLab repo layout
 # shellcheck disable=SC1091

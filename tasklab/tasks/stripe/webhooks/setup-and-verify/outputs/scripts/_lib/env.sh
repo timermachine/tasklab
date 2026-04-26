@@ -12,6 +12,7 @@ else
   echo "Unable to locate TaskLab shared libs (git root: $_TASKLAB_GIT_ROOT)" >&2
   exit 1
 fi
+export TASKLAB_ROOT="$_TASKLAB_GIT_ROOT"
 
 # shellcheck disable=SC1091
 source "$_TASKLAB_SHARED/env.sh"
