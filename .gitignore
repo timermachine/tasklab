@@ -25,3 +25,4 @@ tasklab-portal.html
 
 # Playwright CLI session snapshots
 .playwright-cli/
+.codacy/
