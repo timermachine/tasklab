@@ -1,105 +1,185 @@
 # TaskLab
 
-This package contains:
-- TaskLab global instructions and DSL
-- a generic setup-service template
-- one concrete task: `supabase/setup-project`
-- a second task: `google/wallet-passes/create-generic-pass`
-- a third task: `stripe/webhooks/setup-and-verify`
-- a fourth task: `apple/wallet-passes/ios-wallet`
-- a fifth task: `stripe/account/setup-and-integrate`
-- executable output placeholders for scripts, SQL, code, tests, and reports
+![Status](https://img.shields.io/badge/status-pre--alpha-orange) ![Version](https://img.shields.io/badge/version-0.1-lightgrey)
 
-## Structure
+> [!WARNING]
+> **Pre-alpha — not ready for use.** The CLI and task runner are under active development. Watch or star to follow progress.
 
-- `tasklab/instructions/` global rules only
-- `tasklab/instructions/global-instructions.md` primary “HITL-first, fail-closed” rules
-- `tasklab/dsl/` task and HITL step schema/docs
-- `tasklab/templates/` reusable task skeletons
-- `tasklab/tasks/supabase/setup-project/` one concrete task
-- `tasklab/tasks/supabase/setup-project/outputs/` code and tests to run
+---
 
-## Quickstart: run a task
+Integrating a third-party service is never just one step. It's a dozen browser tabs, a handful of CLI commands, three copy-pastes from dashboards you can never find again, and a webhook secret you typed wrong the first time.
 
-1) Pick a task under `tasklab/tasks/…/…/`.
-2) Read global instructions:
-   - `tasklab/instructions/global-instructions.md`
-   - `tasklab/instructions/running-a-task.md`
-3) Open the task’s:
-   - `task.yaml` (contract: goal/inputs/outputs/success)
-   - `research.md` (surfaces + docs to verify)
-   - `plan.yaml` (ordered steps to execute)
-4) Fill inputs:
-   - copy `inputs.example.yaml` → `inputs.yaml` (kept local; do not commit secrets)
-5) Execute the plan:
-   - run scripts under `outputs/scripts/` (often with `--project-root <your-project>`)
-   - follow HITL steps under `hitl/*.step.yaml`
-6) Verify:
-   - run `outputs/scripts/99-run-tests.sh` (and any task-specific smoke command)
-7) Capture evidence:
-   - update `outputs/reports/*.md` and any “lessons learned” notes referenced by the task.
-
-Example (Supabase task, installing scaffold into the included edge sample):
+TaskLab turns that into a single command.
 
 ```bash
-cd TaskLab
-
-bash tasklab/tasks/supabase/setup-project/outputs/scripts/00-install-scaffold.sh \
-  --project-root tasklab/sample-projects/supabase-edge \
-  --template edge \
-  --force
-
-bash tasklab/tasks/supabase/setup-project/outputs/scripts/99-run-tests.sh \
-  --project-root tasklab/sample-projects/supabase-edge \
-  --template edge
+tasklab run stripe/account/setup-and-integrate
 ```
 
-## Runbooks (CLI)
+Each task is a smart playbook that knows what can be automated and what can't. Before presenting a single manual step, TaskLab searches for an API, CLI, or MCP that can do it instead — reducing human-in-the-loop (HITL) steps to the absolute minimum. When a dashboard click genuinely can't be avoided, TaskLab guides you through it precisely: exact menu path, what to copy, where it goes, and a one-line check to confirm it worked.
 
-List available runbooks:
+The result: service integrations that take minutes instead of hours, work the same way every time, and leave no secrets in your repo.
+
+**Works with any AI agent.** Run `tasklab init` in your project and TaskLab writes an `AGENTS.md` that teaches Claude, Gemini, Copilot, or any other agent how to run and author tasks correctly — including when to pause and wait for you.
+
+---
+
+## How it works
+
+```
+tasklab run stripe/account/setup-and-integrate
+```
+
+1. Pulls the latest curated tasks from [TaskHub](https://github.com/timermachine/taskhub)
+2. Runs numbered scripts in order — preflight checks, service setup, smoke tests
+3. Pauses at HITL steps and guides you through manual actions
+4. Writes runtime artifacts (credentials, scaffolded code) to your project directory — never to the task folder
+
+---
+
+## Install
 
 ```bash
-cd TaskLab
-node ./runbook list
+npm install -g tasklab
 ```
 
-Run a runbook against a target project directory:
+## Quick start
 
 ```bash
-node ./runbook stripe-integration for ~/dev/stripe-integration
+# In any project directory — syncs TaskHub and shows an interactive picker
+tasklab
 ```
 
-Tip: if you want to run it as `runbook ...`, make it executable once:
+TaskHub tasks and your own local tasks are shown as two clearly separated groups. Pick one and it runs.
 
 ```bash
-chmod +x ./runbook
-./runbook stripe-integration for ~/dev/stripe-integration
+# Or run directly by name (useful in scripts and with AI agents)
+tasklab run stripe/account/setup-and-integrate
+
+# Specify where credentials and generated code should go
+tasklab run stripe/account/setup-and-integrate --project-root ~/my-app
 ```
 
-## Quickstart: author a new task
+---
 
-1) Copy the template:
-   - `tasklab/templates/setup-service.task.yaml`
-2) Create a new folder:
-   - `tasklab/tasks/<service>/<task-name>/`
-3) Add the standard files:
-   - `task.yaml`, `research.md`, `plan.yaml`
-   - `hitl/*.step.yaml` (only for dashboard/UI steps)
-   - `outputs/` (scripts/code/sql/tests/report)
-   - `references/` (docs URLs + “verified on” + versions)
-   - `outputs/scripts/00-hitl-links.sh` (required when any copy-once values exist: IDs/keys/URLs) and optionally `outputs/scripts/00-hitl-portal.sh`
-4) Run the task end-to-end at least once, then promote stable artifacts to TaskLib later.
+## AI agent support
 
-## Intended workflow (short)
+TaskLab is designed to work with AI agents (Claude, Gemini, Copilot, etc.). Run this in your project to generate agent instructions:
 
-1. Read global instructions.
-2. Fill task inputs.
-3. Review `research.md`.
-4. Execute `plan.yaml`.
-5. Run scripts/tests under `outputs/`.
-6. Update `outputs/reports/setup-report.md`.
-7. Promote stable artifacts to TaskLib later.
+```bash
+tasklab init       # scaffolds ./tasklab/ and writes AGENTS.md
+```
 
-## Project direction (working doc)
+`AGENTS.md` teaches any agent how to discover and run tasks, respect HITL steps, and handle secrets correctly. Agents use `tasklab run` — they never call scripts directly.
 
-- `tasklab/BUSINESS_DIRECTION.md` (periodic alignment check; not task-level instructions)
+---
+
+## Private tasks
+
+Create your own tasks in your project:
+
+```bash
+tasklab init stripe/my-custom-flow
+# → scaffolds ./tasklab/tasks/stripe/my-custom-flow/
+```
+
+Local tasks override TaskHub tasks of the same name. Your `./tasklab/tasks/` directory is safe to commit — no secrets, no runtime artifacts.
+
+```
+your-project/
+├── AGENTS.md                          ← agent instructions (generated)
+└── tasklab/
+    └── tasks/
+        └── stripe/
+            └── my-custom-flow/
+                ├── task.yaml
+                ├── plan.yaml
+                └── outputs/scripts/
+```
+
+---
+
+## TaskHub
+
+[TaskHub](https://github.com/timermachine/taskhub) is the curated community library of tasks. TaskLab syncs from it automatically before every run.
+
+Current integrations:
+
+| Service | Tasks |
+|---------|-------|
+| Stripe | Account setup + local integration, Webhook setup + verify |
+| Supabase | Project setup (Auth, Edge Functions, types) |
+| Google | Wallet passes (generic pass) |
+| Apple | Wallet passes (iOS .pkpass) |
+| Spotify | OAuth setup + integration |
+| Shelly | Android app setup + build |
+
+---
+
+## Contributing a task
+
+Improved a task? Found a broken link? Built a new integration?
+
+```bash
+tasklab export stripe/my-custom-flow
+```
+
+`tasklab export` validates your task, diffs it against the TaskHub version, and generates a ready-to-paste PR description or GitHub issue body.
+
+Contributions go to [TaskHub](https://github.com/timermachine/taskhub) — see its [CONTRIBUTING.md](https://github.com/timermachine/taskhub/blob/main/CONTRIBUTING.md) for merge standards.
+
+---
+
+## Repo layout
+
+```
+cli/                    The npm package (npm install -g ./cli)
+  bin/tasklab.js        CLI entry point
+  lib/                  Subcommands: run, list, sync, init, export, instructions
+
+docs/                   Design docs and plans
+
+tasklab/
+  instructions/         Authoring rules and operator runbooks
+  lib/bash/             Shared bash libraries (sourced by task scripts)
+  tasks/                Working copies and in-progress tasks (pre-TaskHub)
+  templates/            Task scaffold templates
+  dsl/                  DSL spec and JSON schemas
+```
+
+---
+
+## How tasks are structured
+
+```
+tasks/<service>/<task-name>/
+  task.yaml               Goal, scope, inputs, outputs, completion criteria
+  plan.yaml               Ordered steps (human-readable)
+  manifest.yaml           Maturity level + run history
+  inputs.example.yaml     Template for your .env values (no secrets)
+  research.md             Surface decisions, docs verified on date
+  hitl/*.step.yaml        Guided manual steps (dashboard/web UI)
+  outputs/scripts/        Numbered shell scripts
+    00-hitl-links.sh      Deep links + copy-once guidance
+    01-preflight.sh       Env validation (fail-closed)
+    02-*.sh … 09-*.sh     Main setup steps
+    99-run-tests.sh       Smoke tests
+  outputs/tests/          Additional test scripts
+  outputs/sample/         Sample/scaffold code (not committed after generation)
+  references/             Docs links, checked-surfaces.yaml
+```
+
+---
+
+## Design principles
+
+- **Execution surface priority**: API → CLI → MCP → HITL web
+- **Fail-closed**: scripts validate env vars before running; stop on any error
+- **Copy once**: any value you need to paste is persisted to a file immediately
+- **Two-directory model**: task folder = scripts and templates only; project folder = all runtime artifacts
+- **No stale tasks**: always pulls fresh from TaskHub before running
+
+---
+
+## License
+
+MIT
