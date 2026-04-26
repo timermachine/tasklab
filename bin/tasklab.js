@@ -2,6 +2,7 @@
 'use strict';
 
 const { parseArgs } = require('node:util');
+const fs = require('node:fs');
 const path = require('node:path');
 
 const USAGE = `
@@ -29,7 +30,7 @@ Examples:
   tasklab init stripe/my-custom-flow
 `.trim();
 
-const AGENTS_MD_VERSION_PATTERN = /tasklab instructions v?(\S+)/;
+const AGENTS_MD_VERSION_PATTERN = /tasklab instructions v?([0-9][0-9a-zA-Z.\-]*)/;
 
 function checkAgentsMd() {
   const { version } = require('../package.json');
