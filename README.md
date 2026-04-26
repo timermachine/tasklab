@@ -1,10 +1,18 @@
 # TaskLab
 
-**HITL task runner for service integrations.**
+Integrating a third-party service is never just one step. It's a dozen browser tabs, a handful of CLI commands, three copy-pastes from dashboards you can never find again, and a webhook secret you typed wrong the first time.
 
-TaskLab is a CLI + playbook framework for setting up third-party services — Stripe, Supabase, Google Wallet, Apple Wallet, Spotify, and more. Tasks combine shell scripts for the parts that can be automated with guided manual steps for the parts that can't (dashboard clicks, copy-once credentials, OAuth consent screens).
+TaskLab turns that into a single command.
 
-Designed to be run by humans, guided by AI agents.
+```bash
+tasklab run stripe/account/setup-and-integrate
+```
+
+Each task is a smart playbook that knows what can be automated and what can't. Before presenting a single manual step, TaskLab searches for an API, CLI, or MCP that can do it instead — reducing human-in-the-loop (HITL) steps to the absolute minimum. When a dashboard click genuinely can't be avoided, TaskLab guides you through it precisely: exact menu path, what to copy, where it goes, and a one-line check to confirm it worked.
+
+The result: service integrations that take minutes instead of hours, work the same way every time, and leave no secrets in your repo.
+
+**Works with any AI agent.** Run `tasklab init` in your project and TaskLab writes an `AGENTS.md` that teaches Claude, Gemini, Copilot, or any other agent how to run and author tasks correctly — including when to pause and wait for you.
 
 ---
 
