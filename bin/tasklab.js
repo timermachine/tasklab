@@ -9,13 +9,17 @@ const USAGE = `
 Usage: tasklab [command] [options]
 
 Commands:
-  (none)         Interactive task picker — sync TaskHub and select a task to run
-  run <task>     Run a task by name (e.g. stripe/account/setup-and-integrate)
-  list           List all available tasks (TaskHub + local)
-  sync           Pull latest tasks from TaskHub
-  init [task]    Init project (./tasklab/) or scaffold a new task
-  instructions   Write or update AGENTS.md in the current directory
-  export <task>  Review and prepare a local task for community contribution
+  (none)              Interactive task picker — sync TaskHub and select a task to run
+  run <task>          Run a task by name (e.g. stripe/account/setup-and-integrate)
+  list                List all available tasks (TaskHub + local)
+  sync                Pull latest tasks from TaskHub
+  init [task] [agent] Init project (./tasklab/) or scaffold + agent-author a new task
+  instructions        Write or update AGENTS.md in the current directory
+  export <task>       Review and prepare a local task for community contribution
+
+Agents:
+  claude              Use the Claude CLI (claude -p)
+  codex               Use the OpenAI Codex CLI (codex)
 
 Options:
   --project-root <dir>   Directory for runtime artifacts (default: cwd)
@@ -28,6 +32,8 @@ Examples:
   tasklab run stripe/account/setup-and-integrate --project-root ~/my-app
   tasklab init
   tasklab init stripe/my-custom-flow
+  tasklab init stripe/my-custom-flow claude
+  tasklab init stripe/my-custom-flow codex
 `.trim();
 
 const AGENTS_MD_VERSION_PATTERN = /tasklab instructions v?([0-9][0-9a-zA-Z.\-]*)/;
@@ -56,12 +62,10 @@ async function main() {
     process.exit(0);
   }
 
-  // Health checks (non-blocking)
   checkAgentsMd();
 
   const subcommand = argv[0];
 
-  // No subcommand → interactive picker
   if (!subcommand || subcommand.startsWith('--')) {
     const { picker } = require('../lib/picker');
     await picker();
@@ -96,9 +100,26 @@ async function main() {
     }
 
     case 'init': {
-      const task = rest.find(a => !a.startsWith('--'));
+      const positional = rest.filter(a => !a.startsWith('--'));
+      const slug  = positional[0] || null;
+      let   agent = positional[1] || null;
+
+      if (slug && !agent) {
+        const { pickAgent } = require('../lib/agent-picker');
+        agent = await pickAgent();
+      }
+
+      if (agent) {
+        const { VALID_AGENTS } = require('../lib/agent-runner');
+        if (!VALID_AGENTS.includes(agent)) {
+          console.error(`Unknown agent: ${agent}`);
+          console.error(`Valid agents: ${VALID_AGENTS.join(', ')}`);
+          process.exit(1);
+        }
+      }
+
       const { init } = require('../lib/init');
-      await init(task || null);
+      await init(slug || null, agent);
       break;
     }
 
