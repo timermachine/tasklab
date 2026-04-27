@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const {
+  generatePortal,
   runTasklab,
   tmpDir,
   writeFakeHubTaskFromDir,
@@ -94,7 +95,81 @@ test('runs the Stripe setup TaskHub task through CLI and verifies the task porta
   await expect(page.getByText('Fill your project `.env` via outputs/scripts/00-init-project-env.sh')).toBeVisible();
   await expect(page.getByText('Run outputs/scripts/99-run-tests.sh')).toBeVisible();
   await expect(page.locator('.step-card.status-success')).toHaveCount(6);
-  await expect(page.locator('.status-pill.status-success')).toHaveCount(6);
+  await expect(page.locator('.step-card .status-pill.status-success')).toHaveCount(6);
+
+  fs.rmSync(projectRoot, { recursive: true, force: true });
+  fs.rmSync(homeDir, { recursive: true, force: true });
+});
+
+test('portal renders HITL step cards in initial state before run', async ({ page }) => {
+  const projectRoot = tmpDir('tasklab-stripe-initial-');
+  const homeDir = tmpDir('tasklab-stripe-initial-home-');
+  const { taskDir } = writeFakeHubTaskFromDir(homeDir, slug, sourceTaskDir);
+
+  const portalPath = generatePortal(taskDir, projectRoot);
+  await page.goto(pathToFileURL(portalPath).href);
+
+  // All three HITL step cards visible
+  await expect(page.getByText('Collect Stripe publishable + secret API keys (test mode)')).toBeVisible();
+  await expect(page.getByText('Create a test Product + Price and capture STRIPE_PRICE_ID')).toBeVisible();
+  await expect(page.getByText('Configure a webhook destination/endpoint and capture STRIPE_WEBHOOK_SECRET')).toBeVisible();
+  await expect(page.locator('.step-card.status-manual')).toHaveCount(3);
+
+  // Verify checkboxes present and unchecked
+  const verifyCbs = page.locator('.verify-cb');
+  await expect(verifyCbs).toHaveCount(3);
+  for (const cb of await verifyCbs.all()) {
+    await expect(cb).not.toBeChecked();
+  }
+
+  // Meta refresh present — portal should keep polling until success
+  const html = await page.content();
+  expect(html).toContain('http-equiv="refresh"');
+
+  // No success steps yet
+  await expect(page.locator('.step-card.status-success')).toHaveCount(0);
+
+  fs.rmSync(projectRoot, { recursive: true, force: true });
+  fs.rmSync(homeDir, { recursive: true, force: true });
+});
+
+test('portal shows preflight failure output', async ({ page }) => {
+  const projectRoot = tmpDir('tasklab-stripe-preflight-fail-');
+  const homeDir = tmpDir('tasklab-stripe-preflight-fail-home-');
+  const { taskDir } = writeFakeHubTaskFromDir(homeDir, slug, sourceTaskDir);
+  stubUnsafeStripeScripts(taskDir);
+
+  // Stub 00-hitl-links.sh too — we only want to exercise preflight
+  writeFile(path.join(taskDir, 'outputs', 'scripts', '00-hitl-links.sh'),
+    '#!/usr/bin/env bash\nset -euo pipefail\necho "hitl links stubbed"\n', 0o755);
+
+  // Write .env missing STRIPE_SECRET_KEY so preflight fails with a clear message
+  writeFile(path.join(projectRoot, '.env'),
+    'STRIPE_PUBLISHABLE_KEY=pk_test_tasklab_e2e_1234567890\n');
+
+  const result = await runTasklab(['run', slug, '--project-root', projectRoot], {
+    cwd: projectRoot,
+    homeDir,
+  });
+
+  expect(result.code).toBe(2);
+
+  const state = JSON.parse(fs.readFileSync(path.join(projectRoot, '.tasklab-runs', 'current.json'), 'utf8'));
+  expect(state.status).toBe('failed');
+  const preflightStep = state.steps.find(s => s.name === '01-preflight.sh');
+  expect(preflightStep.status).toBe('failed');
+  expect(preflightStep.output).toContain('STRIPE_SECRET_KEY');
+
+  const portalPath = path.join(projectRoot, 'tasklab-portal.html');
+  await page.goto(pathToFileURL(portalPath).href);
+
+  // Error output visible in portal
+  await expect(page.getByText('Missing required env var: STRIPE_SECRET_KEY', { exact: false })).toBeVisible();
+  await expect(page.locator('.step-card.status-failed')).toHaveCount(1);
+
+  // Meta refresh still present — portal should keep polling so re-run is picked up
+  const html = await page.content();
+  expect(html).toContain('http-equiv="refresh"');
 
   fs.rmSync(projectRoot, { recursive: true, force: true });
   fs.rmSync(homeDir, { recursive: true, force: true });

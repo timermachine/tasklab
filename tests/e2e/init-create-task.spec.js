@@ -39,7 +39,7 @@ test('scaffolds a new task from the CLI and renders it in the portal', async ({ 
   await page.goto(pathToFileURL(portalPath).href);
   await expect(page.getByRole('heading', { name: 'demo/new-task' })).toBeVisible();
   await expect(page.getByText('Steps (6)')).toBeVisible();
-  await expect(page.getByText('Pending')).toHaveCount(3);
+  await expect(page.locator('.step-card .status-pill.status-pending')).toHaveCount(3);
   await expect(page.getByText('Run outputs/scripts/01-preflight.sh.')).toBeVisible();
 
   fs.rmSync(projectRoot, { recursive: true, force: true });

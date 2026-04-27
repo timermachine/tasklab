@@ -38,7 +38,7 @@ test('runs a TaskHub task through the CLI and renders completed portal state', a
   await page.goto(pathToFileURL(portalPath).href);
   await expect(page.getByText('Tasklab run completed')).toBeVisible();
   await expect(page.locator('.step-card.status-success')).toHaveCount(2);
-  await expect(page.locator('.status-pill.status-success')).toHaveCount(2);
+  await expect(page.locator('.step-card .status-pill.status-success')).toHaveCount(2);
 
   fs.rmSync(projectRoot, { recursive: true, force: true });
   fs.rmSync(homeDir, { recursive: true, force: true });
@@ -68,7 +68,7 @@ test('captures a failing CLI run and renders failed portal state', async ({ page
   await expect(page.getByText('Tasklab run failed')).toBeVisible();
   await expect(page.locator('.step-card.status-success')).toHaveCount(1);
   await expect(page.locator('.step-card.status-failed')).toHaveCount(1);
-  await expect(page.locator('.status-pill.status-failed')).toBeVisible();
+  await expect(page.locator('.step-card .status-pill.status-failed')).toBeVisible();
 
   fs.rmSync(projectRoot, { recursive: true, force: true });
   fs.rmSync(homeDir, { recursive: true, force: true });

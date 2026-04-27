@@ -73,6 +73,18 @@ function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
+function linkify(s) {
+  return esc(s).replace(/https?:\/\/[^\s<>"']+/g, (match) => {
+    let url = match;
+    let trailing = '';
+    while (/[.,;:!?)]$/.test(url)) {
+      trailing = url.slice(-1) + trailing;
+      url = url.slice(0, -1);
+    }
+    return `<a class="text-blue-400 underline underline-offset-2 break-all trackable" href="${url}" target="_blank" rel="noreferrer" data-link-id="${url}">${url}</a>${trailing}`;
+  });
+}
+
 const MATURITY_LABELS = ['Created', 'Works', 'Hardened'];
 
 const BADGE = {
@@ -93,7 +105,7 @@ function renderVersions(v) {
     Object.entries(v).map(([k, val]) =>
       `<div class="flex flex-col gap-px">
         <span class="text-xs text-gray-400 font-mono">${esc(k)}</span>
-        <span class="text-sm font-mono">${esc(val)}</span>
+        <span class="text-sm font-mono">${linkify(val)}</span>
       </div>`
     ).join('')
   }</div>`;
@@ -120,10 +132,10 @@ const KIND_BADGE = {
 function renderAction(a, si, ai) {
   const kindCls = KIND_BADGE[a.kind] ?? 'bg-gray-700 text-gray-400';
   const hint = a.locator_hint
-    ? `<div class="text-xs text-gray-400 mt-0.5">${esc(a.locator_hint)}</div>`
+    ? `<div class="text-xs text-gray-400 mt-0.5">${linkify(a.locator_hint)}</div>`
     : '';
   const note = a.text
-    ? `<div class="text-xs text-gray-400 mt-1 border-l-2 border-sky-400 pl-2 leading-relaxed">${esc(a.text)}</div>`
+    ? `<div class="text-xs text-gray-400 mt-1 border-l-2 border-sky-400 pl-2 leading-relaxed">${linkify(a.text)}</div>`
     : '';
 
   const kindBadge = `<span class="flex-shrink-0 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mt-0.5 ${kindCls}">${esc(a.kind)}</span>`;
@@ -175,7 +187,7 @@ function renderFallbacks(fallbacks) {
     ${fallbacks.map(f => `
       <div class="mb-1.5 last:mb-0">
         <div class="text-sm font-semibold text-amber-400">${esc(f.label)}</div>
-        ${f.text ? `<div class="text-xs text-gray-400 mt-0.5">${esc(f.text)}</div>` : ''}
+        ${f.text ? `<div class="text-xs text-gray-400 mt-0.5">${linkify(f.text)}</div>` : ''}
       </div>`).join('')}
   </div>`;
 }
@@ -224,7 +236,7 @@ function renderStep(step) {
       <div class="step-header flex items-start justify-between gap-3 p-3">
         <div class="flex items-start gap-2 min-w-0 flex-1">
           <span class="snum flex-shrink-0 w-[22px] h-[22px] rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-[11px] font-bold text-gray-400">${n}</span>
-          <span class="text-[13px] leading-relaxed text-gray-200">${esc(step.text)}</span>
+          <span class="text-base leading-relaxed text-gray-200">${linkify(step.text)}</span>
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
           ${scriptMatch ? `<button class="copy-btn bg-transparent border border-gray-700 rounded text-gray-400 cursor-pointer text-xs px-2 py-0.5 leading-snug" data-copy="${esc(copyCmd)}" title="Copy command">⧉</button>` : ''}
@@ -255,8 +267,8 @@ function buildHtml({ task, plan, manifest, steps, projectRoot, taskDirRel }) {
   const total = steps.length;
   const stepsHtml = steps.map(renderStep).join('\n');
 
-  const prereqHtml = prereqs.map(p => `<li class="mb-1">${esc(p)}</li>`).join('');
-  const assumeHtml = assumptions.map(a => `<li class="mb-1">${esc(a)}</li>`).join('');
+  const prereqHtml = prereqs.map(p => `<li class="mb-1">${linkify(p)}</li>`).join('');
+  const assumeHtml = assumptions.map(a => `<li class="mb-1">${linkify(a)}</li>`).join('');
 
   return `<!doctype html>
 <html lang="en" class="bg-gray-950">
@@ -266,7 +278,7 @@ function buildHtml({ task, plan, manifest, steps, projectRoot, taskDirRel }) {
   <title>TaskLab — ${esc(title)}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background: #030712; color: #e5e7eb; }
+    body { background: #030712; color: #e5e7eb; font-size: 17px; }
     /* Visited link tracking */
     .trackable.visited { color: #34d399; }
     .trackable.visited::after { content: ' ✓'; font-size: 11px; opacity: .8; }
@@ -280,18 +292,18 @@ function buildHtml({ task, plan, manifest, steps, projectRoot, taskDirRel }) {
   </style>
 </head>
 <body>
-<div class="max-w-3xl mx-auto px-4 py-6 pb-16">
+<div class="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-5 pb-14">
 
   <div class="mb-5">
-    <h1 class="text-2xl font-bold mb-2.5 text-white">${esc(title)}</h1>
+    <h1 class="text-3xl font-bold mb-2.5 text-white">${esc(title)}</h1>
     <div class="flex flex-wrap gap-2 mb-2.5">
       ${badge(matColor, `Maturity ${maturity} — ${matLabel}`)}
       ${lastRun
         ? badge(outcomeColor, `Last run: ${lastRun.date} — ${lastRun.outcome}`)
         : badge('muted', 'Never run')}
     </div>
-    ${summary ? `<div class="text-gray-400 text-sm mb-2">${esc(summary)}</div>` : ''}
-    <div class="text-xs text-gray-500 flex flex-wrap gap-4">
+    ${summary ? `<div class="text-gray-400 text-base mb-2">${linkify(summary)}</div>` : ''}
+    <div class="text-sm text-gray-500 flex flex-wrap gap-4">
       <span>project root: <code class="font-mono text-gray-400">${esc(projectRoot)}</code></span>
       <span>task: <code class="font-mono text-gray-400">${esc(taskDirRel)}</code></span>
     </div>
@@ -303,7 +315,7 @@ function buildHtml({ task, plan, manifest, steps, projectRoot, taskDirRel }) {
   <div class="text-xs text-gray-500 mb-5" id="pt">0 of ${total} steps done</div>
 
   <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
-    <div class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2.5">Last Run Versions</div>
+    <div class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2.5">Last Run Versions</div>
     ${renderVersions(versions)}
   </div>
 
@@ -311,17 +323,17 @@ function buildHtml({ task, plan, manifest, steps, projectRoot, taskDirRel }) {
   <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
     <div class="grid gap-4 ${prereqHtml && assumeHtml ? 'sm:grid-cols-2' : ''}">
       ${prereqHtml ? `<div>
-        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Prerequisites</h3>
-        <ul class="pl-4 text-sm text-gray-400 list-disc">${prereqHtml}</ul>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-1.5">Prerequisites</h3>
+        <ul class="pl-4 text-base text-gray-400 list-disc">${prereqHtml}</ul>
       </div>` : ''}
       ${assumeHtml ? `<div>
-        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Assumptions</h3>
-        <ul class="pl-4 text-sm text-gray-400 list-disc">${assumeHtml}</ul>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-1.5">Assumptions</h3>
+        <ul class="pl-4 text-base text-gray-400 list-disc">${assumeHtml}</ul>
       </div>` : ''}
     </div>
   </div>` : ''}
 
-  <div class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2.5">Steps (${total})</div>
+  <div class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2.5">Steps (${total})</div>
   ${stepsHtml}
 
 </div>

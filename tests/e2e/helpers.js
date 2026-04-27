@@ -7,6 +7,7 @@ const path = require('node:path');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
 const cliPath = path.join(repoRoot, 'bin', 'tasklab.js');
+const generatorPath = path.join(repoRoot, 'lib', 'portal', 'generate.js');
 
 function tmpDir(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -79,6 +80,13 @@ function writeFakeHubTaskFromDir(homeDir, slug, sourceTaskDir) {
   return { hubRoot, taskDir: destTaskDir };
 }
 
+function generatePortal(taskDir, projectRoot, outFile) {
+  const args = ['--task-dir', taskDir, '--project-root', projectRoot];
+  if (outFile) args.push('--out', outFile);
+  execFileSync(process.execPath, [generatorPath, ...args], { stdio: 'ignore' });
+  return outFile ?? path.join(projectRoot, 'tasklab-portal.html');
+}
+
 function runTasklab(args, { cwd, homeDir }) {
   return new Promise(resolve => {
     const proc = spawn(process.execPath, [cliPath, ...args], {
@@ -99,6 +107,7 @@ function runTasklab(args, { cwd, homeDir }) {
 }
 
 module.exports = {
+  generatePortal,
   runTasklab,
   tmpDir,
   writeFakeHubTaskFromDir,

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>TaskLab — screenshot gallery</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #030712;
+      color: #e5e7eb;
+      font: 14px/1.5 ui-sans-serif, system-ui, sans-serif;
+      padding: 32px 24px 64px;
+    }
+    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 32px; color: #f9fafb; }
+    h2 { font-size: .85rem; font-weight: 600; text-transform: uppercase;
+         letter-spacing: .08em; color: #6b7280; margin-bottom: 14px; }
+    section { margin-bottom: 48px; }
+    .states {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    figure { display: flex; flex-direction: column; gap: 8px; }
+    figcaption { font-size: .75rem; color: #9ca3af; }
+    img.thumb {
+      width: 100%;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      display: block;
+      cursor: zoom-in;
+      transition: border-color .15s;
+    }
+    img.thumb:hover { border-color: #3b82f6; }
+
+    /* Lightbox */
+    #lb {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.88);
+      z-index: 1000;
+    }
+    #lb.open { display: block; }
+    #lb-scroll {
+      position: absolute; inset: 0;
+      overflow: auto;
+      padding: 24px;
+      text-align: center;
+      cursor: zoom-out;
+    }
+    #lb img {
+      max-width: none;
+      width: auto;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      cursor: default;
+      box-shadow: 0 25px 60px rgba(0,0,0,.7);
+    }
+    #lb-hint {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      font-size: .7rem; color: #6b7280; pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>TaskLab screenshots</h1>
+  
+    <section>
+      <h2>Demo task</h2>
+      
+    <figure>
+      <figcaption>Demo task</figcaption>
+      <img src="run-taskhub-combined.png" class="thumb" data-src="run-taskhub-combined.png" alt="Demo task" />
+    </figure>
+    </section>
+
+    <section>
+      <h2>Stripe — full run</h2>
+      
+    <figure>
+      <figcaption>Stripe — full run</figcaption>
+      <img src="stripe-setup-combined.png" class="thumb" data-src="stripe-setup-combined.png" alt="Stripe — full run" />
+    </figure>
+    </section>
+  
+    <section>
+      <h2>Stripe portal states</h2>
+      <div class="states">
+        
+    <figure>
+      <figcaption>Stripe portal — initial (before run)</figcaption>
+      <img src="stripe-portal-initial.png" class="thumb" data-src="stripe-portal-initial.png" alt="Stripe portal — initial (before run)" />
+    </figure>
+
+    <figure>
+      <figcaption>Stripe portal — mid-run</figcaption>
+      <img src="stripe-portal-mid-run.png" class="thumb" data-src="stripe-portal-mid-run.png" alt="Stripe portal — mid-run" />
+    </figure>
+
+    <figure>
+      <figcaption>Stripe portal — preflight failed</figcaption>
+      <img src="stripe-portal-preflight-failed.png" class="thumb" data-src="stripe-portal-preflight-failed.png" alt="Stripe portal — preflight failed" />
+    </figure>
+      </div>
+    </section>
+
+  <div id="lb"><div id="lb-scroll"><img id="lb-img" src="" alt="" /></div><div id="lb-hint">scroll to pan · Cmd+/- to zoom · click backdrop or Esc to close</div></div>
+
+  <script>
+    var lb = document.getElementById('lb');
+    var lbScroll = document.getElementById('lb-scroll');
+    var lbImg = document.getElementById('lb-img');
+
+    document.querySelectorAll('img.thumb').forEach(function(img) {
+      img.addEventListener('click', function() {
+        lbImg.src = img.dataset.src;
+        lbImg.alt = img.alt;
+        lb.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    lbScroll.addEventListener('click', function(e) {
+      if (e.target !== lbImg) close();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') close();
+    });
+
+    function close() {
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+      lbImg.src = '';
+    }
+  </script>
+</body>
+</html>

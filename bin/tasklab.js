@@ -11,6 +11,7 @@ Usage: tasklab [command] [options]
 Commands:
   (none)              Interactive task picker — sync TaskHub and select a task to run
   run <task>          Run a task by name (e.g. stripe/account/setup-and-integrate)
+  test [task]         Run a task's post-setup test only (defaults to sole local task)
   list                List all available tasks (TaskHub + local)
   sync                Pull latest tasks from TaskHub
   init [task] [agent] Init project (./tasklab/) or scaffold + agent-author a new task
@@ -31,6 +32,8 @@ Examples:
   tasklab
   tasklab run stripe/account/setup-and-integrate
   tasklab run stripe/account/setup-and-integrate --project-root ~/my-app
+  tasklab test
+  tasklab test stripe/account/setup-and-integrate
   tasklab init
   tasklab init stripe/my-custom-flow
   tasklab init stripe/my-custom-flow claude
@@ -85,6 +88,14 @@ async function main() {
       const opts = parseRunOpts(rest);
       const { run } = require('../lib/run');
       await run(task, opts);
+      break;
+    }
+
+    case 'test': {
+      const task = rest.find(a => !a.startsWith('--')) || null;
+      const opts = parseRunOpts(rest);
+      const { test } = require('../lib/test');
+      await test(task, opts);
       break;
     }
 
