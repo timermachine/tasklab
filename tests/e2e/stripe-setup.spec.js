@@ -61,7 +61,7 @@ test('runs the Stripe setup TaskHub task through CLI and verifies the task porta
 
   expect(result.code).toBe(0);
   expect(result.stdout).toContain('Stripe account setup + API keys + Checkout integration + webhooks');
-  expect(result.stdout).toContain('HITL links (Stripe Dashboard)');
+  expect(result.stdout).toContain('See the task portal for HITL links and copy-once instructions.');
   expect(result.stdout).toContain('Preflight OK');
   expect(result.stdout).toContain('stripe sample server stubbed for e2e');
   expect(result.stdout).toContain('stripe listen stubbed for e2e');
@@ -88,11 +88,13 @@ test('runs the Stripe setup TaskHub task through CLI and verifies the task porta
   await expect(page.getByRole('heading', { name: 'Stripe account setup + API keys + Checkout integration + webhooks' })).toBeVisible();
   await expect(page.getByText('Browser access for Stripe Dashboard')).toBeVisible();
   await expect(page.getByText('Stripe CLI (optional but recommended for local webhook testing)')).toBeVisible();
-  await expect(page.getByText('Run outputs/scripts/00-hitl-links.sh')).toBeVisible();
+  await expect(page.getByText('Collect Stripe publishable + secret API keys (test mode)')).toBeVisible();
+  await expect(page.getByText('Create a test Product + Price and capture STRIPE_PRICE_ID')).toBeVisible();
+  await expect(page.getByText('Configure a webhook destination/endpoint and capture STRIPE_WEBHOOK_SECRET')).toBeVisible();
   await expect(page.getByText('Fill your project `.env` via outputs/scripts/00-init-project-env.sh')).toBeVisible();
   await expect(page.getByText('Run outputs/scripts/99-run-tests.sh')).toBeVisible();
-  await expect(page.locator('.step-card.status-success')).toHaveCount(7);
-  await expect(page.locator('.status-pill.status-success')).toHaveCount(7);
+  await expect(page.locator('.step-card.status-success')).toHaveCount(6);
+  await expect(page.locator('.status-pill.status-success')).toHaveCount(6);
 
   fs.rmSync(projectRoot, { recursive: true, force: true });
   fs.rmSync(homeDir, { recursive: true, force: true });

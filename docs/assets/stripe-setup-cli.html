@@ -48,7 +48,7 @@
 <body>
   <div class="frame">
     <div class="bar"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span><span>terminal</span></div>
-    <pre>$ tasklab run stripe/account/setup-and-integrate --project-root /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4
+    <pre>$ tasklab run stripe/account/setup-and-integrate --project-root /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-0LmgTG
 
 Syncing TaskHub... 
 Stripe account setup + API keys + Checkout integration + webhooks
@@ -58,44 +58,17 @@ Create a Stripe account (test mode), collect keys/IDs, integrate Checkout
 
 You'll need: Node.js + npm, Browser access for Stripe Dashboard, Stripe CLI (optional but recommended for local webhook testing)
 9 automated steps will run.
-Portal written: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/tasklab-portal.html
+Portal written: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-0LmgTG/tasklab-portal.html
 
 
 Running: stripe/account/setup-and-integrate  [TaskHub (undefined)]
 
 
 ── [00-hitl-links.sh] ───────────────────────────────────────
-Project root: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4
-Env file:     /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/.env
+Project root: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-0LmgTG
+Env file:     /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-0LmgTG/.env
+See the task portal for HITL links and copy-once instructions.
 
-HITL links (Docs):
-- API keys:             https://docs.stripe.com/keys
-- Checkout:             https://docs.stripe.com/checkout
-- Products and prices:  https://docs.stripe.com/products-prices
-- Webhooks:             https://docs.stripe.com/webhooks
-- Test webhooks:        https://docs.stripe.com/webhooks/test
-
-HITL links (Stripe Dashboard):
-- Dashboard home: https://dashboard.stripe.com
-- API keys:       https://dashboard.stripe.com/apikeys
-- Products:       https://dashboard.stripe.com/products
-- Webhooks:       https://dashboard.stripe.com/webhooks
-- Webhooks (test):https://dashboard.stripe.com/test/webhooks
-
-Copy-once values to persist into /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/.env:
-
-- STRIPE_SECRET_KEY=sk_test_...
-  - Dashboard: Developers -&gt; API keys (in test mode)
-
-- STRIPE_PUBLISHABLE_KEY=pk_test_...
-  - Dashboard: Developers -&gt; API keys (in test mode)
-
-- STRIPE_PRICE_ID=price_...
-  - Dashboard: Products -&gt; select your Product -&gt; copy Price ID
-
-- STRIPE_WEBHOOK_SECRET=whsec_...
-  - CLI path (recommended for localhost): run `stripe listen --forward-to http://localhost:&lt;port&gt;&lt;path&gt;` and copy the printed whsec_...
-  - UI fallback: Webhooks -&gt; select endpoint/destination -&gt; reveal Signing secret
 
 Temporary session env + runnable scripts:
 - Session env: /tmp/tasklab-session-stripe-account.sh
@@ -126,11 +99,11 @@ bash "/tmp/tasklab-next-stripe-account-open.sh"
 bash "/tmp/tasklab-next-stripe-account-tests.sh"
 
 ── [00-hitl-portal.sh] ──────────────────────────────────────
-Portal written: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/tasklab-portal.html
-Open with: open "/var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/tasklab-portal.html"
+Portal written: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-0LmgTG/tasklab-portal.html
+Open with: open "/var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-0LmgTG/tasklab-portal.html"
 
 ── [00-init-project-env.sh] ─────────────────────────────────
-Env file already exists: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/.env (skip init — already configured)
+Env file already exists: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-0LmgTG/.env (skip init — already configured)
 Re-run with --force to overwrite.
 
 ── [00-temporary-session-env.sh] ────────────────────────────

@@ -4,24 +4,24 @@
   "task_dir": "/Users/steve/dev/tl/tasklab/tasklab/tasks/spotify/oauth/setup-and-integrate",
   "project_root": "/Users/steve/dev/tl/tasklab",
   "status": "failed",
-  "started_at": "2026-04-27T05:44:42.740Z",
-  "updated_at": "2026-04-27T05:44:43.445Z",
-  "completed_at": "2026-04-27T05:44:43.445Z",
+  "started_at": "2026-04-27T06:31:50.741Z",
+  "updated_at": "2026-04-27T06:31:51.684Z",
+  "completed_at": "2026-04-27T06:31:51.684Z",
   "steps": [
     {
       "name": "00-hitl-links.sh",
       "path": "/Users/steve/dev/tl/tasklab/tasklab/tasks/spotify/oauth/setup-and-integrate/outputs/scripts/00-hitl-links.sh",
       "status": "success",
-      "started_at": "2026-04-27T05:44:42.824Z",
-      "completed_at": "2026-04-27T05:44:43.189Z",
+      "started_at": "2026-04-27T06:31:50.830Z",
+      "completed_at": "2026-04-27T06:31:51.280Z",
       "exit_code": 0
     },
     {
       "name": "01-preflight.sh",
       "path": "/Users/steve/dev/tl/tasklab/tasklab/tasks/spotify/oauth/setup-and-integrate/outputs/scripts/01-preflight.sh",
       "status": "failed",
-      "started_at": "2026-04-27T05:44:43.284Z",
-      "completed_at": "2026-04-27T05:44:43.445Z",
+      "started_at": "2026-04-27T06:31:51.533Z",
+      "completed_at": "2026-04-27T06:31:51.684Z",
       "exit_code": 1
     },
     {
