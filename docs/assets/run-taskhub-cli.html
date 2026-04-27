@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      margin: 0;
+      background: #0b1020;
+      color: #d8e3f0;
+      font: 15px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .frame {
+      width: 1120px;
+      min-height: 640px;
+      box-sizing: border-box;
+      padding: 28px;
+      background:
+        linear-gradient(180deg, rgba(55, 65, 81, .28), rgba(15, 23, 42, .08)),
+        #0b1020;
+    }
+    .bar {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #94a3b8;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-bottom: 0;
+      border-radius: 8px 8px 0 0;
+      padding: 0 12px;
+      background: rgba(15, 23, 42, .92);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .red { background: #fb7185; }
+    .yellow { background: #f59e0b; }
+    .green { background: #34d399; }
+    pre {
+      margin: 0;
+      min-height: 530px;
+      white-space: pre-wrap;
+      padding: 18px;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 0 0 8px 8px;
+      background: #050816;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="bar"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span><span>terminal</span></div>
+    <pre>$ tasklab run demo/success --project-root /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-report-project-fwMWNV
+
+Syncing TaskHub... 
+E2E demo/success
+
+Fixture task for command-line and portal E2E coverage.
+
+You'll need: Node.js
+2 automated steps will run.
+Portal written: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-report-project-fwMWNV/tasklab-portal.html
+
+
+Running: demo/success  [TaskHub (undefined)]
+
+
+── [01-preflight.sh] ────────────────────────────────────────
+preflight ok
+
+── [99-run-tests.sh] ────────────────────────────────────────
+smoke ok
+
+✓  demo/success completed.
+
+exit 0</pre>
+  </div>
+</body>
+</html>

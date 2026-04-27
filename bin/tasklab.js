@@ -24,6 +24,7 @@ Agents:
 Options:
   --project-root <dir>   Directory for runtime artifacts (default: cwd)
   --env-file <path>      Path to .env file (default: <project-root>/.env)
+  --no-agent             Scaffold a new task without launching an AI agent
   --help                 Show this help
 
 Examples:
@@ -103,8 +104,9 @@ async function main() {
       const positional = rest.filter(a => !a.startsWith('--'));
       const slug  = positional[0] || null;
       let   agent = positional[1] || null;
+      const noAgent = rest.includes('--no-agent');
 
-      if (slug && !agent) {
+      if (slug && !agent && !noAgent) {
         const { pickAgent } = require('../lib/agent-picker');
         agent = await pickAgent();
       }
