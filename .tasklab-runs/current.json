@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "task": "spotify/oauth/setup-and-integrate",
+  "task_dir": "/Users/steve/dev/tl/tasklab/tasklab/tasks/spotify/oauth/setup-and-integrate",
+  "project_root": "/Users/steve/dev/tl/tasklab",
+  "status": "failed",
+  "started_at": "2026-04-27T05:44:42.740Z",
+  "updated_at": "2026-04-27T05:44:43.445Z",
+  "completed_at": "2026-04-27T05:44:43.445Z",
+  "steps": [
+    {
+      "name": "00-hitl-links.sh",
+      "path": "/Users/steve/dev/tl/tasklab/tasklab/tasks/spotify/oauth/setup-and-integrate/outputs/scripts/00-hitl-links.sh",
+      "status": "success",
+      "started_at": "2026-04-27T05:44:42.824Z",
+      "completed_at": "2026-04-27T05:44:43.189Z",
+      "exit_code": 0
+    },
+    {
+      "name": "01-preflight.sh",
+      "path": "/Users/steve/dev/tl/tasklab/tasklab/tasks/spotify/oauth/setup-and-integrate/outputs/scripts/01-preflight.sh",
+      "status": "failed",
+      "started_at": "2026-04-27T05:44:43.284Z",
+      "completed_at": "2026-04-27T05:44:43.445Z",
+      "exit_code": 1
+    },
+    {
+      "name": "02-oauth-login.sh",
+      "path": "/Users/steve/dev/tl/tasklab/tasklab/tasks/spotify/oauth/setup-and-integrate/outputs/scripts/02-oauth-login.sh",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "exit_code": null
+    },
+    {
+      "name": "03-refresh-token.sh",
+      "path": "/Users/steve/dev/tl/tasklab/tasklab/tasks/spotify/oauth/setup-and-integrate/outputs/scripts/03-refresh-token.sh",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "exit_code": null
+    },
+    {
+      "name": "99-run-tests.sh",
+      "path": "/Users/steve/dev/tl/tasklab/tasklab/tasks/spotify/oauth/setup-and-integrate/outputs/scripts/99-run-tests.sh",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "exit_code": null
+    }
+  ]
+}

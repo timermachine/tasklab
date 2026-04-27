@@ -8,6 +8,8 @@ const {
   runTasklab,
   tmpDir,
   writeFakeHub,
+  writeFakeHubTaskFromDir,
+  writeFile,
 } = require('../../tests/e2e/helpers');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
@@ -88,43 +90,115 @@ function writeCliHtml(filePath, { command, stdout, stderr, exitCode }) {
 </html>`);
 }
 
+const stripeSlug = 'stripe/account/setup-and-integrate';
+const stripeSourceTaskDir = path.resolve(repoRoot, '..', 'taskhub', 'tasks', ...stripeSlug.split('/'));
+
+function writeStripeEnv(projectRoot) {
+  writeFile(path.join(projectRoot, '.env'), [
+    'STRIPE_SECRET_KEY=sk_test_tasklab_e2e_1234567890',
+    'STRIPE_PUBLISHABLE_KEY=pk_test_tasklab_e2e_1234567890',
+    'STRIPE_PRICE_ID=price_tasklab_e2e_1234567890',
+    'STRIPE_WEBHOOK_SECRET=whsec_tasklab_e2e_1234567890',
+    'STRIPE_WEBHOOK_PORT=44242',
+    'STRIPE_WEBHOOK_PATH=/webhook',
+    'STRIPE_SUCCESS_URL=http://localhost:44242/success',
+    'STRIPE_CANCEL_URL=http://localhost:44242/cancel',
+    'STRIPE_WEBHOOK_TOLERANCE_SECONDS=300',
+    'STRIPE_WEBHOOK_DEDUPE_TTL_SECONDS=86400',
+    '',
+  ].join('\n'));
+}
+
+function stubUnsafeStripeScripts(taskDir) {
+  const scriptsDir = path.join(taskDir, 'outputs', 'scripts');
+  const stubs = {
+    '02-run-sample-server.sh': 'stripe sample server stubbed for e2e',
+    '03-stripe-listen.sh': 'stripe listen stubbed for e2e',
+    '04-open-local-app.sh': 'open local app stubbed for e2e',
+    '99-run-tests.sh': 'stripe smoke tests stubbed for e2e',
+  };
+  for (const [name, message] of Object.entries(stubs)) {
+    writeFile(path.join(scriptsDir, name), `#!/usr/bin/env bash\nset -euo pipefail\necho "${message}"\n`, 0o755);
+  }
+}
+
 async function main() {
   fs.mkdirSync(assetsDir, { recursive: true });
 
-  const projectRoot = tmpDir('tasklab-report-project-');
-  const homeDir = tmpDir('tasklab-report-home-');
-  const slug = 'demo/success';
-  writeFakeHub(homeDir, slug);
-
-  const result = await runTasklab(['run', slug, '--project-root', projectRoot], {
-    cwd: projectRoot,
-    homeDir,
-  });
-
-  const cliHtml = path.join(assetsDir, 'run-taskhub-cli.html');
-  writeCliHtml(cliHtml, {
-    command: `tasklab run ${slug} --project-root ${projectRoot}`,
-    stdout: result.stdout,
-    stderr: result.stderr,
-    exitCode: result.code,
-  });
-
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1120, height: 720 }, deviceScaleFactor: 1 });
 
-  await page.goto(pathToFileURL(cliHtml).href);
-  await page.screenshot({ path: path.join(assetsDir, 'run-taskhub-cli.png'), fullPage: true });
+  // --- demo/success screenshots ---
+  {
+    const projectRoot = tmpDir('tasklab-report-project-');
+    const homeDir = tmpDir('tasklab-report-home-');
+    const slug = 'demo/success';
+    writeFakeHub(homeDir, slug);
 
-  await page.goto(pathToFileURL(path.join(projectRoot, 'tasklab-portal.html')).href);
-  await page.screenshot({ path: path.join(assetsDir, 'run-taskhub-portal.png'), fullPage: true });
+    const result = await runTasklab(['run', slug, '--project-root', projectRoot], {
+      cwd: projectRoot,
+      homeDir,
+    });
+
+    const cliHtml = path.join(assetsDir, 'run-taskhub-cli.html');
+    writeCliHtml(cliHtml, {
+      command: `tasklab run ${slug} --project-root ${projectRoot}`,
+      stdout: result.stdout,
+      stderr: result.stderr,
+      exitCode: result.code,
+    });
+
+    const page = await browser.newPage({ viewport: { width: 1120, height: 720 }, deviceScaleFactor: 1 });
+    await page.goto(pathToFileURL(cliHtml).href);
+    await page.screenshot({ path: path.join(assetsDir, 'run-taskhub-cli.png'), fullPage: true });
+
+    await page.goto(pathToFileURL(path.join(projectRoot, 'tasklab-portal.html')).href);
+    await page.screenshot({ path: path.join(assetsDir, 'run-taskhub-portal.png'), fullPage: true });
+    await page.close();
+
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+    fs.rmSync(homeDir, { recursive: true, force: true });
+
+    console.log('Wrote docs/assets/run-taskhub-cli.png');
+    console.log('Wrote docs/assets/run-taskhub-portal.png');
+  }
+
+  // --- stripe/account/setup-and-integrate screenshots ---
+  {
+    const projectRoot = tmpDir('tasklab-stripe-report-project-');
+    const homeDir = tmpDir('tasklab-stripe-report-home-');
+    const { taskDir } = writeFakeHubTaskFromDir(homeDir, stripeSlug, stripeSourceTaskDir);
+    stubUnsafeStripeScripts(taskDir);
+    writeStripeEnv(projectRoot);
+
+    const result = await runTasklab(['run', stripeSlug, '--project-root', projectRoot], {
+      cwd: projectRoot,
+      homeDir,
+    });
+
+    const cliHtml = path.join(assetsDir, 'stripe-setup-cli.html');
+    writeCliHtml(cliHtml, {
+      command: `tasklab run ${stripeSlug} --project-root ${projectRoot}`,
+      stdout: result.stdout,
+      stderr: result.stderr,
+      exitCode: result.code,
+    });
+
+    const page = await browser.newPage({ viewport: { width: 1120, height: 720 }, deviceScaleFactor: 1 });
+    await page.goto(pathToFileURL(cliHtml).href);
+    await page.screenshot({ path: path.join(assetsDir, 'stripe-setup-cli.png'), fullPage: true });
+
+    await page.goto(pathToFileURL(path.join(projectRoot, 'tasklab-portal.html')).href);
+    await page.screenshot({ path: path.join(assetsDir, 'stripe-setup-portal.png'), fullPage: true });
+    await page.close();
+
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+    fs.rmSync(homeDir, { recursive: true, force: true });
+
+    console.log('Wrote docs/assets/stripe-setup-cli.png');
+    console.log('Wrote docs/assets/stripe-setup-portal.png');
+  }
 
   await browser.close();
-
-  fs.rmSync(projectRoot, { recursive: true, force: true });
-  fs.rmSync(homeDir, { recursive: true, force: true });
-
-  console.log('Wrote docs/assets/run-taskhub-cli.png');
-  console.log('Wrote docs/assets/run-taskhub-portal.png');
 }
 
 main().catch(err => {

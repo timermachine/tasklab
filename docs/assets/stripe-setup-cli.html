@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      margin: 0;
+      background: #0b1020;
+      color: #d8e3f0;
+      font: 15px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .frame {
+      width: 1120px;
+      min-height: 640px;
+      box-sizing: border-box;
+      padding: 28px;
+      background:
+        linear-gradient(180deg, rgba(55, 65, 81, .28), rgba(15, 23, 42, .08)),
+        #0b1020;
+    }
+    .bar {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #94a3b8;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-bottom: 0;
+      border-radius: 8px 8px 0 0;
+      padding: 0 12px;
+      background: rgba(15, 23, 42, .92);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .red { background: #fb7185; }
+    .yellow { background: #f59e0b; }
+    .green { background: #34d399; }
+    pre {
+      margin: 0;
+      min-height: 530px;
+      white-space: pre-wrap;
+      padding: 18px;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 0 0 8px 8px;
+      background: #050816;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="bar"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span><span>terminal</span></div>
+    <pre>$ tasklab run stripe/account/setup-and-integrate --project-root /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4
+
+Syncing TaskHub... 
+Stripe account setup + API keys + Checkout integration + webhooks
+
+Create a Stripe account (test mode), collect keys/IDs, integrate Checkout
+(payment) end-to-end, and verify webhook signature handling.
+
+You'll need: Node.js + npm, Browser access for Stripe Dashboard, Stripe CLI (optional but recommended for local webhook testing)
+9 automated steps will run.
+Portal written: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/tasklab-portal.html
+
+
+Running: stripe/account/setup-and-integrate  [TaskHub (undefined)]
+
+
+── [00-hitl-links.sh] ───────────────────────────────────────
+Project root: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4
+Env file:     /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/.env
+
+HITL links (Docs):
+- API keys:             https://docs.stripe.com/keys
+- Checkout:             https://docs.stripe.com/checkout
+- Products and prices:  https://docs.stripe.com/products-prices
+- Webhooks:             https://docs.stripe.com/webhooks
+- Test webhooks:        https://docs.stripe.com/webhooks/test
+
+HITL links (Stripe Dashboard):
+- Dashboard home: https://dashboard.stripe.com
+- API keys:       https://dashboard.stripe.com/apikeys
+- Products:       https://dashboard.stripe.com/products
+- Webhooks:       https://dashboard.stripe.com/webhooks
+- Webhooks (test):https://dashboard.stripe.com/test/webhooks
+
+Copy-once values to persist into /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/.env:
+
+- STRIPE_SECRET_KEY=sk_test_...
+  - Dashboard: Developers -&gt; API keys (in test mode)
+
+- STRIPE_PUBLISHABLE_KEY=pk_test_...
+  - Dashboard: Developers -&gt; API keys (in test mode)
+
+- STRIPE_PRICE_ID=price_...
+  - Dashboard: Products -&gt; select your Product -&gt; copy Price ID
+
+- STRIPE_WEBHOOK_SECRET=whsec_...
+  - CLI path (recommended for localhost): run `stripe listen --forward-to http://localhost:&lt;port&gt;&lt;path&gt;` and copy the printed whsec_...
+  - UI fallback: Webhooks -&gt; select endpoint/destination -&gt; reveal Signing secret
+
+Temporary session env + runnable scripts:
+- Session env: /tmp/tasklab-session-stripe-account.sh
+- Setup:       /tmp/tasklab-next-stripe-account-setup.sh
+- Server:      /tmp/tasklab-next-stripe-account-server.sh
+- Stripe CLI:  /tmp/tasklab-next-stripe-account-listen.sh
+- Open app:    /tmp/tasklab-next-stripe-account-open.sh
+- Tests:       /tmp/tasklab-next-stripe-account-tests.sh
+Wrote session env: /tmp/tasklab-session-stripe-account.sh
+Next:
+  . "/tmp/tasklab-session-stripe-account.sh"
+  cd /path/to/TaskLab &amp;&amp; cd "$TASK_DIR"
+
+Copied to clipboard (short run lines):
+. "/tmp/tasklab-session-stripe-account.sh"
+bash "/tmp/tasklab-next-stripe-account-setup.sh"
+
+# Terminal A (server)
+bash "/tmp/tasklab-next-stripe-account-server.sh"
+
+# Terminal B (Stripe CLI - optional but recommended)
+bash "/tmp/tasklab-next-stripe-account-listen.sh"
+
+# Local app (browser)
+bash "/tmp/tasklab-next-stripe-account-open.sh"
+
+# Smoke tests (requires server running)
+bash "/tmp/tasklab-next-stripe-account-tests.sh"
+
+── [00-hitl-portal.sh] ──────────────────────────────────────
+Portal written: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/tasklab-portal.html
+Open with: open "/var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/tasklab-portal.html"
+
+── [00-init-project-env.sh] ─────────────────────────────────
+Env file already exists: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-stripe-report-project-Bi8kz4/.env (skip init — already configured)
+Re-run with --force to overwrite.
+
+── [00-temporary-session-env.sh] ────────────────────────────
+Wrote session env: /tmp/tasklab-session-stripe-account.sh
+Next:
+  . "/tmp/tasklab-session-stripe-account.sh"
+  cd /path/to/TaskLab &amp;&amp; cd "$TASK_DIR"
+
+── [01-preflight.sh] ────────────────────────────────────────
+Node: /opt/homebrew/bin/node
+npm:  /opt/homebrew/bin/npm
+Stripe CLI: no (optional)
+
+Preflight OK
+
+── [02-run-sample-server.sh] ────────────────────────────────
+stripe sample server stubbed for e2e
+
+── [03-stripe-listen.sh] ────────────────────────────────────
+stripe listen stubbed for e2e
+
+── [04-open-local-app.sh] ───────────────────────────────────
+open local app stubbed for e2e
+
+── [99-run-tests.sh] ────────────────────────────────────────
+stripe smoke tests stubbed for e2e
+
+✓  stripe/account/setup-and-integrate completed.
+
+exit 0</pre>
+  </div>
+</body>
+</html>
