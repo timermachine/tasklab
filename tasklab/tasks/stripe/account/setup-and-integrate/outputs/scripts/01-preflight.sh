@@ -47,13 +47,17 @@ if [[ ! -f "$ENV_FILE" ]]; then
 fi
 
 tasklab_env_source_file "$ENV_FILE"
-tasklab_env_validate_stripe_account "$ENV_FILE"
+
+# Trim required vars before format validation so copy-paste whitespace is handled
+# cleanly (e.g. a key pasted with trailing space still passes the sk_/pk_ prefix check).
 tasklab_env_need "$ENV_FILE" "STRIPE_SECRET_KEY"
 tasklab_env_need "$ENV_FILE" "STRIPE_PUBLISHABLE_KEY"
 tasklab_env_need "$ENV_FILE" "STRIPE_PRICE_ID"
 tasklab_env_need "$ENV_FILE" "STRIPE_WEBHOOK_SECRET"
 tasklab_env_need "$ENV_FILE" "STRIPE_WEBHOOK_PORT"
 tasklab_env_need "$ENV_FILE" "STRIPE_WEBHOOK_PATH"
+
+tasklab_env_validate_stripe_account "$ENV_FILE"
 
 echo "Preflight OK"
 

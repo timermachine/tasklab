@@ -48,8 +48,17 @@ tasklab_env_source_file() {
 
 tasklab_env_need() {
   local env_file="$1" key="$2"
-  if [[ -z "${!key:-}" ]]; then
+  local val="${!key:-}"
+  # Trim leading and trailing whitespace
+  local trimmed
+  trimmed="$(printf '%s' "$val" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+  if [[ -z "$trimmed" ]]; then
     echo "Missing required env var: $key (in $env_file)" >&2
     exit 1
+  fi
+  if [[ "$trimmed" != "$val" ]]; then
+    echo "Warning: $key in $env_file has leading/trailing whitespace — trimming automatically." >&2
+    printf -v "$key" '%s' "$trimmed"
+    export "$key"
   fi
 }

@@ -94,6 +94,54 @@ function writeCliHtml(filePath, { command, stdout, stderr, exitCode }) {
 const stripeSlug = 'stripe/account/setup-and-integrate';
 const stripeSourceTaskDir = path.resolve(repoRoot, '..', 'taskhub', 'tasks', ...stripeSlug.split('/'));
 
+const gwSlug = 'google/wallet-passes/create-generic-pass';
+const gwSourceTaskDir = path.resolve(repoRoot, '..', 'taskhub', 'tasks', ...gwSlug.split('/'));
+
+const FAKE_SA_JSON = JSON.stringify({
+  type: 'service_account',
+  project_id: 'tasklab-e2e',
+  private_key_id: 'fake-key-id',
+  client_email: 'tasklab-e2e@tasklab-e2e.iam.gserviceaccount.com',
+  client_id: '123456789012345678901',
+  auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+  token_uri: 'https://oauth2.googleapis.com/token',
+}, null, 2);
+
+function writeFakeSaKey(dir) {
+  const saKeyPath = path.join(dir, 'fake-sa-key.json');
+  fs.writeFileSync(saKeyPath, FAKE_SA_JSON, 'utf8');
+  return saKeyPath;
+}
+
+function writeGoogleEnv(projectRoot, saKeyPath) {
+  writeFile(path.join(projectRoot, '.env'), [
+    'ISSUER_ID=1234567890',
+    `GOOGLE_APPLICATION_CREDENTIALS=${saKeyPath}`,
+    'PASS_TITLE="E2E Test Pass"',
+    'GCP_PROJECT_ID=tasklab-e2e',
+    '',
+  ].join('\n'));
+}
+
+function stubUnsafeGoogleScripts(taskDir) {
+  const scriptsDir = path.join(taskDir, 'outputs', 'scripts');
+  const stubs = {
+    '00-check-surfaces.sh':     'google check-surfaces stubbed for e2e',
+    '00-hitl-links.sh':         'google hitl-links stubbed for e2e',
+    '00-hitl-portal.sh':        'google hitl-portal stubbed for e2e',
+    '02-get-access-token.sh':   'google get-access-token stubbed for e2e',
+    '02b-smoke-wallet-api.sh':  'google smoke-wallet-api stubbed for e2e',
+    '03-create-class.sh':       'google create-class stubbed for e2e',
+    '04-create-object.sh':      'google create-object stubbed for e2e',
+    '05-generate-save-url.sh':  'google generate-save-url stubbed for e2e',
+    '10-gcloud-bootstrap.sh':   'google gcloud-bootstrap stubbed for e2e',
+    '99-run-tests.sh':          'google smoke tests stubbed for e2e',
+  };
+  for (const [name, message] of Object.entries(stubs)) {
+    writeFile(path.join(scriptsDir, name), `#!/usr/bin/env bash\nset -euo pipefail\necho "${message}"\n`, 0o755);
+  }
+}
+
 function writeStripeEnv(projectRoot) {
   writeFile(path.join(projectRoot, '.env'), [
     'STRIPE_SECRET_KEY=sk_test_tasklab_e2e_1234567890',
@@ -189,6 +237,7 @@ async function main() {
     fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(homeDir, { recursive: true, force: true });
     console.log('Wrote docs/assets/run-taskhub-combined.png');
+    openPng(path.join(assetsDir, 'run-taskhub-combined.png'));
   }
 
   // --- stripe/account/setup-and-integrate screenshots ---
@@ -227,227 +276,56 @@ async function main() {
     fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(homeDir, { recursive: true, force: true });
     console.log('Wrote docs/assets/stripe-setup-combined.png');
+    openPng(path.join(assetsDir, 'stripe-setup-combined.png'));
   }
 
-  // --- stripe portal states ---
+  // --- google/wallet-passes/create-generic-pass screenshots ---
   {
-    const homeDir = tmpDir('tasklab-stripe-states-home-');
-    const { taskDir } = writeFakeHubTaskFromDir(homeDir, stripeSlug, stripeSourceTaskDir);
+    const projectRoot = tmpDir('tasklab-gw-report-project-');
+    const homeDir = tmpDir('tasklab-gw-report-home-');
+    const { taskDir } = writeFakeHubTaskFromDir(homeDir, gwSlug, gwSourceTaskDir);
+    stubUnsafeGoogleScripts(taskDir);
+    const saKeyPath = writeFakeSaKey(projectRoot);
+    writeGoogleEnv(projectRoot, saKeyPath);
 
-    // 1. Initial state — portal before any run
-    {
-      const projectRoot = tmpDir('tasklab-stripe-states-initial-');
-      const portalPath = generatePortal(taskDir, projectRoot);
-      const page = await browser.newPage({ viewport: { width: 800, height: 900 }, deviceScaleFactor: 1 });
-      await screenshotPortal(page, pathToFileURL(portalPath).href, path.join(assetsDir, 'stripe-portal-initial.png'));
-      await page.close();
-      fs.rmSync(projectRoot, { recursive: true, force: true });
-      console.log('Wrote docs/assets/stripe-portal-initial.png');
-    }
+    const result = await runTasklab(['run', gwSlug, '--project-root', projectRoot], {
+      cwd: projectRoot,
+      homeDir,
+    });
 
-    // 2. Mid-run — 00-init-project-env succeeded, 01-preflight running, rest pending
-    {
-      const projectRoot = tmpDir('tasklab-stripe-states-midrun-');
-      const now = new Date().toISOString();
-      const runState = {
-        version: 1,
-        task: stripeSlug,
-        task_dir: path.resolve(taskDir),
-        project_root: path.resolve(projectRoot),
-        status: 'running',
-        started_at: now,
-        updated_at: now,
-        completed_at: null,
-        steps: [
-          { name: '00-hitl-links.sh',        status: 'success', started_at: now, completed_at: now, exit_code: 0 },
-          { name: '00-hitl-portal.sh',        status: 'success', started_at: now, completed_at: now, exit_code: 0 },
-          { name: '00-init-project-env.sh',   status: 'success', started_at: now, completed_at: now, exit_code: 0 },
-          { name: '00-temporary-session-env.sh', status: 'success', started_at: now, completed_at: now, exit_code: 0 },
-          { name: '01-preflight.sh',          status: 'running', started_at: now, completed_at: null, exit_code: null },
-          { name: '02-run-sample-server.sh',  status: 'pending', started_at: null, completed_at: null, exit_code: null },
-          { name: '03-stripe-listen.sh',      status: 'pending', started_at: null, completed_at: null, exit_code: null },
-          { name: '04-open-local-app.sh',     status: 'pending', started_at: null, completed_at: null, exit_code: null },
-          { name: '99-run-tests.sh',          status: 'pending', started_at: null, completed_at: null, exit_code: null },
-        ],
-      };
-      fs.mkdirSync(path.join(projectRoot, '.tasklab-runs'), { recursive: true });
-      fs.writeFileSync(path.join(projectRoot, '.tasklab-runs', 'current.json'), JSON.stringify(runState, null, 2));
-      const portalPath = generatePortal(taskDir, projectRoot);
-      const page = await browser.newPage({ viewport: { width: 800, height: 900 }, deviceScaleFactor: 1 });
-      await screenshotPortal(page, pathToFileURL(portalPath).href, path.join(assetsDir, 'stripe-portal-mid-run.png'));
-      await page.close();
-      fs.rmSync(projectRoot, { recursive: true, force: true });
-      console.log('Wrote docs/assets/stripe-portal-mid-run.png');
-    }
+    const cliHtml = path.join(assetsDir, 'google-wallet-cli.html');
+    writeCliHtml(cliHtml, {
+      command: `tasklab run ${gwSlug} --project-root ${projectRoot}`,
+      stdout: result.stdout,
+      stderr: result.stderr,
+      exitCode: result.code,
+    });
 
-    // 3. Preflight failed — shows error output in portal
-    {
-      const projectRoot = tmpDir('tasklab-stripe-states-prefail-');
-      stubUnsafeStripeScripts(taskDir);
-      writeFile(path.join(taskDir, 'outputs', 'scripts', '00-hitl-links.sh'),
-        '#!/usr/bin/env bash\nset -euo pipefail\necho "hitl links stubbed"\n', 0o755);
-      writeFile(path.join(projectRoot, '.env'),
-        'STRIPE_PUBLISHABLE_KEY=pk_test_tasklab_e2e_1234567890\n');
-      await runTasklab(['run', stripeSlug, '--project-root', projectRoot], { cwd: projectRoot, homeDir });
-      const page = await browser.newPage({ viewport: { width: 800, height: 900 }, deviceScaleFactor: 1 });
-      await screenshotPortal(page, pathToFileURL(path.join(projectRoot, 'tasklab-portal.html')).href, path.join(assetsDir, 'stripe-portal-preflight-failed.png'));
-      await page.close();
-      fs.rmSync(projectRoot, { recursive: true, force: true });
-      console.log('Wrote docs/assets/stripe-portal-preflight-failed.png');
-    }
+    const page = await browser.newPage({ viewport: { width: 1120, height: 720 }, deviceScaleFactor: 1 });
+    await page.goto(pathToFileURL(cliHtml).href);
+    await page.screenshot({ path: path.join(assetsDir, 'google-wallet-cli.png'), fullPage: true });
+    await page.setViewportSize({ width: 800, height: 720 });
+    await screenshotPortal(page, pathToFileURL(path.join(projectRoot, 'tasklab-portal.html')).href, path.join(assetsDir, 'google-wallet-portal.png'));
+    await page.close();
 
+    await composeSideBySide(browser,
+      path.join(assetsDir, 'google-wallet-portal.png'),
+      path.join(assetsDir, 'google-wallet-cli.png'),
+      path.join(assetsDir, 'google-wallet-combined.png'));
+
+    fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(homeDir, { recursive: true, force: true });
+    console.log('Wrote docs/assets/google-wallet-combined.png');
+    openPng(path.join(assetsDir, 'google-wallet-combined.png'));
   }
 
   await browser.close();
-
-  writeGallery();
-  openGallery();
 }
 
-function writeGallery() {
-  const pairs = [
-    { label: 'Demo task',         img: 'run-taskhub-combined.png' },
-    { label: 'Stripe — full run', img: 'stripe-setup-combined.png' },
-  ];
-
-  const states = [
-    { label: 'Stripe portal — initial (before run)',    img: 'stripe-portal-initial.png' },
-    { label: 'Stripe portal — mid-run',                 img: 'stripe-portal-mid-run.png' },
-    { label: 'Stripe portal — preflight failed',        img: 'stripe-portal-preflight-failed.png' },
-  ];
-
-  const thumb = (src, caption) => `
-    <figure>
-      <figcaption>${escHtml(caption)}</figcaption>
-      <img src="${escHtml(src)}" class="thumb" data-src="${escHtml(src)}" alt="${escHtml(caption)}" />
-    </figure>`;
-
-  const pairsHtml = pairs.map(({ label, img }) => `
-    <section>
-      <h2>${escHtml(label)}</h2>
-      ${thumb(img, label)}
-    </section>`).join('\n');
-
-  const statesHtml = `
-    <section>
-      <h2>Stripe portal states</h2>
-      <div class="states">
-        ${states.map(({ label, img }) => thumb(img, label)).join('\n')}
-      </div>
-    </section>`;
-
-  const html = `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>TaskLab — screenshot gallery</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: #030712;
-      color: #e5e7eb;
-      font: 14px/1.5 ui-sans-serif, system-ui, sans-serif;
-      padding: 32px 24px 64px;
-    }
-    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 32px; color: #f9fafb; }
-    h2 { font-size: .85rem; font-weight: 600; text-transform: uppercase;
-         letter-spacing: .08em; color: #6b7280; margin-bottom: 14px; }
-    section { margin-bottom: 48px; }
-    .states {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-    figure { display: flex; flex-direction: column; gap: 8px; }
-    figcaption { font-size: .75rem; color: #9ca3af; }
-    img.thumb {
-      width: 100%;
-      border: 1px solid #1f2937;
-      border-radius: 8px;
-      display: block;
-      cursor: zoom-in;
-      transition: border-color .15s;
-    }
-    img.thumb:hover { border-color: #3b82f6; }
-
-    /* Lightbox */
-    #lb {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.88);
-      z-index: 1000;
-    }
-    #lb.open { display: block; }
-    #lb-scroll {
-      position: absolute; inset: 0;
-      overflow: auto;
-      padding: 24px;
-      text-align: center;
-      cursor: zoom-out;
-    }
-    #lb img {
-      max-width: none;
-      width: auto;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      cursor: default;
-      box-shadow: 0 25px 60px rgba(0,0,0,.7);
-    }
-    #lb-hint {
-      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
-      font-size: .7rem; color: #6b7280; pointer-events: none;
-    }
-  </style>
-</head>
-<body>
-  <h1>TaskLab screenshots</h1>
-  ${pairsHtml}
-  ${statesHtml}
-
-  <div id="lb"><div id="lb-scroll"><img id="lb-img" src="" alt="" /></div><div id="lb-hint">scroll to pan · Cmd+/- to zoom · click backdrop or Esc to close</div></div>
-
-  <script>
-    var lb = document.getElementById('lb');
-    var lbScroll = document.getElementById('lb-scroll');
-    var lbImg = document.getElementById('lb-img');
-
-    document.querySelectorAll('img.thumb').forEach(function(img) {
-      img.addEventListener('click', function() {
-        lbImg.src = img.dataset.src;
-        lbImg.alt = img.alt;
-        lb.classList.add('open');
-        document.body.style.overflow = 'hidden';
-      });
-    });
-
-    lbScroll.addEventListener('click', function(e) {
-      if (e.target !== lbImg) close();
-    });
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') close();
-    });
-
-    function close() {
-      lb.classList.remove('open');
-      document.body.style.overflow = '';
-      lbImg.src = '';
-    }
-  </script>
-</body>
-</html>`;
-
-  const galleryPath = path.join(assetsDir, 'index.html');
-  fs.writeFileSync(galleryPath, html);
-  console.log('Wrote docs/assets/index.html');
-}
-
-function openGallery() {
+function openPng(filePath) {
   const { spawn } = require('node:child_process');
-  const galleryPath = path.join(assetsDir, 'index.html');
   const opener = process.platform === 'darwin' ? 'open' : 'xdg-open';
-  spawn(opener, [galleryPath], { detached: true, stdio: 'ignore' }).unref();
+  spawn(opener, [filePath], { detached: true, stdio: 'ignore' }).unref();
 }
 
 main().catch(err => {

@@ -44,19 +44,14 @@ fi
 source "$SCRIPT_DIR/_lib/env.sh"
 tasklab_env_source "$ENV_FILE"
 tasklab_env_resolve_paths "$PROJECT_ROOT"
+
+# Trim required vars before format validation so copy-paste whitespace is handled
+# cleanly (e.g. ISSUER_ID pasted with trailing space still passes the digits check).
+tasklab_env_need "$ENV_FILE" ISSUER_ID
+tasklab_env_need "$ENV_FILE" GOOGLE_APPLICATION_CREDENTIALS
+tasklab_env_need "$ENV_FILE" PASS_TITLE
+
 tasklab_env_validate "$ENV_FILE"
-
-need() {
-  local key="$1"
-  if [[ -z "${!key:-}" ]]; then
-    echo "Missing required env var: $key (in $ENV_FILE)" >&2
-    exit 1
-  fi
-}
-
-need "ISSUER_ID"
-need "GOOGLE_APPLICATION_CREDENTIALS"
-need "PASS_TITLE"
 
 if [[ ! -f "$GOOGLE_APPLICATION_CREDENTIALS" ]]; then
   echo "GOOGLE_APPLICATION_CREDENTIALS does not exist: $GOOGLE_APPLICATION_CREDENTIALS" >&2

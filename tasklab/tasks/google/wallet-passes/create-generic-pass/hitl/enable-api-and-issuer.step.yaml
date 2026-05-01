@@ -39,7 +39,7 @@ actions:
     locator_hint: Project picker in the top bar
   - kind: click
     label: Enable the API (if not enabled)
-    locator_hint: "Enable" button on the API page
+    locator_hint: '"Enable" button on the API page'
   - kind: verify
     label: Confirm API is enabled
     locator_hint: APIs & Services → Enabled APIs & services

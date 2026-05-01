@@ -133,6 +133,46 @@ test('portal renders HITL step cards in initial state before run', async ({ page
   fs.rmSync(homeDir, { recursive: true, force: true });
 });
 
+test('preflight succeeds when credentials have trailing whitespace (trimmed automatically)', async () => {
+  const projectRoot = tmpDir('tasklab-stripe-whitespace-');
+  const homeDir = tmpDir('tasklab-stripe-whitespace-home-');
+  const { taskDir } = writeFakeHubTaskFromDir(homeDir, slug, sourceTaskDir);
+  stubUnsafeStripeScripts(taskDir);
+
+  // Write env with trailing whitespace on the secret and publishable keys.
+  // (Leading whitespace before the sk_/pk_ prefix is a format error, not a trim case —
+  // only trailing whitespace is tested here, which is the common copy-paste footgun.)
+  // Quote the padded values — the precheck skips quoted env vars, but bash preserves
+  // the trailing spaces inside quotes, so tasklab_env_need still trims them.
+  writeFile(path.join(projectRoot, '.env'), [
+    'STRIPE_SECRET_KEY="sk_test_tasklab_e2e_1234567890   "',     // trailing spaces (quoted)
+    'STRIPE_PUBLISHABLE_KEY="pk_test_tasklab_e2e_1234567890   "', // trailing spaces (quoted)
+    'STRIPE_PRICE_ID=price_tasklab_e2e_1234567890',
+    'STRIPE_WEBHOOK_SECRET=whsec_tasklab_e2e_1234567890',
+    'STRIPE_WEBHOOK_PORT=44242',
+    'STRIPE_WEBHOOK_PATH=/webhook',
+    'STRIPE_SUCCESS_URL=http://localhost:44242/success',
+    'STRIPE_CANCEL_URL=http://localhost:44242/cancel',
+    'STRIPE_WEBHOOK_TOLERANCE_SECONDS=300',
+    'STRIPE_WEBHOOK_DEDUPE_TTL_SECONDS=86400',
+    '',
+  ].join('\n'));
+
+  const result = await runTasklab(['run', slug, '--project-root', projectRoot], {
+    cwd: projectRoot,
+    homeDir,
+  });
+
+  // Preflight should pass — whitespace trimmed, sk_* and pk_* prefixes preserved.
+  // The trim warning goes to stderr (>&2); the "Preflight OK" confirmation goes to stdout.
+  expect(result.stdout).toContain('Preflight OK');
+  expect(result.stderr).toContain('trimming automatically');
+  expect(result.code).toBe(0);
+
+  fs.rmSync(projectRoot, { recursive: true, force: true });
+  fs.rmSync(homeDir, { recursive: true, force: true });
+});
+
 test('portal shows preflight failure output', async ({ page }) => {
   const projectRoot = tmpDir('tasklab-stripe-preflight-fail-');
   const homeDir = tmpDir('tasklab-stripe-preflight-fail-home-');

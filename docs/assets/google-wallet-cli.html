@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      margin: 0;
+      background: #0b1020;
+      color: #d8e3f0;
+      font: 15px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .frame {
+      width: 1120px;
+      min-height: 640px;
+      box-sizing: border-box;
+      padding: 28px;
+      background:
+        linear-gradient(180deg, rgba(55, 65, 81, .28), rgba(15, 23, 42, .08)),
+        #0b1020;
+    }
+    .bar {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #94a3b8;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-bottom: 0;
+      border-radius: 8px 8px 0 0;
+      padding: 0 12px;
+      background: rgba(15, 23, 42, .92);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .red { background: #fb7185; }
+    .yellow { background: #f59e0b; }
+    .green { background: #34d399; }
+    pre {
+      margin: 0;
+      min-height: 530px;
+      white-space: pre-wrap;
+      padding: 18px;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 0 0 8px 8px;
+      background: #050816;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="bar"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span><span>terminal</span></div>
+    <pre>$ tasklab run google/wallet-passes/create-generic-pass --project-root /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-gw-report-project-WCX5vT
+
+Syncing TaskHub... 
+Create a Google Wallet pass (Generic pass)
+
+Provision issuer + API access, create a Generic pass class/object, and generate
+a working 'Save to Google Wallet' link.
+
+You'll need: Node.js available locally (for sample generator), Google Cloud account access, Browser access for HITL console steps
+12 automated steps will run.
+Portal written: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-gw-report-project-WCX5vT/tasklab-portal.html
+
+
+Running: google/wallet-passes/create-generic-pass  [TaskHub (undefined)]
+
+
+── [00-check-surfaces.sh] ───────────────────────────────────
+google check-surfaces stubbed for e2e
+
+── [00-hitl-links.sh] ───────────────────────────────────────
+google hitl-links stubbed for e2e
+
+── [00-hitl-portal.sh] ──────────────────────────────────────
+google hitl-portal stubbed for e2e
+
+── [00-init-project-env.sh] ─────────────────────────────────
+Env file already exists: /var/folders/v_/myjv8h152kl8y1cqzbgnb2080000gn/T/tasklab-gw-report-project-WCX5vT/.env (skip init — already configured)
+Re-run with --force to overwrite.
+
+── [01-preflight.sh] ────────────────────────────────────────
+Node: /opt/homebrew/bin/node
+npm:  /opt/homebrew/bin/npm
+
+Preflight OK
+
+── [02-get-access-token.sh] ─────────────────────────────────
+google get-access-token stubbed for e2e
+
+── [02b-smoke-wallet-api.sh] ────────────────────────────────
+google smoke-wallet-api stubbed for e2e
+
+── [03-create-class.sh] ─────────────────────────────────────
+google create-class stubbed for e2e
+
+── [04-create-object.sh] ────────────────────────────────────
+google create-object stubbed for e2e
+
+── [05-generate-save-url.sh] ────────────────────────────────
+google generate-save-url stubbed for e2e
+
+── [10-gcloud-bootstrap.sh] ─────────────────────────────────
+google gcloud-bootstrap stubbed for e2e
+
+── [99-run-tests.sh] ────────────────────────────────────────
+google smoke tests stubbed for e2e
+
+✓  google/wallet-passes/create-generic-pass completed.
+
+exit 0</pre>
+  </div>
+</body>
+</html>
