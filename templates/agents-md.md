@@ -15,7 +15,13 @@ tasklab run <service/task-name>           # run a task (syncs TaskHub first)
 tasklab run <task> --project-root <dir>   # specify where runtime artifacts go
 ```
 
-## Rules — follow these exactly
+## Git workflow rules
+
+- **Always work on a named feature branch** — never commit directly to `main`
+- **Keep commits under 200 lines** — if your staged diff exceeds 200 lines, pause and consider splitting into smaller, focused commits before proceeding. Use `git diff --staged --numstat` to check. Smaller commits are easier to review and revert.
+- Branch naming: `feat/`, `fix/`, `docs/`, `chore/`
+
+## TaskLab rules — follow these exactly
 
 1. **Use `tasklab run`** — never call scripts under `outputs/scripts/` directly
 2. **Use `tasklab list`** to discover available tasks before running
