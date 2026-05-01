@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Pre-commit checks:
+#   1. Block commits directly to main/master
+#   2. Warn (and block) when staged diff exceeds 200 lines — consider splitting the commit
+
+set -euo pipefail
+
+# ── 1. Branch protection ──────────────────────────────────────────────────────
+
+BRANCH=$(git branch --show-current)
+
+if [[ "$BRANCH" == "main" || "$BRANCH" == "master" ]]; then
+  echo ""
+  echo "  ✗  Direct commits to '$BRANCH' are not allowed."
+  echo ""
+  echo "     Create a feature branch first:"
+  echo "       git checkout -b feat/<short-description>"
+  echo ""
+  exit 1
+fi
+
+# ── 2. Diff size warning ──────────────────────────────────────────────────────
+
+LIMIT=200
+
+# Count total lines added + removed in the staged diff
+LINES=$(git diff --staged --numstat \
+  | awk '{add+=$1; del+=$2} END {print add+del+0}')
+
+if [[ "$LINES" -gt "$LIMIT" ]]; then
+  echo ""
+  echo "  ⚠  This commit changes $LINES lines (limit: $LIMIT)."
+  echo ""
+  echo "     Large commits are harder to review and revert."
+  echo "     Consider splitting into smaller, focused commits:"
+  echo "       git add -p   # stage only part of your changes"
+  echo ""
+  echo "     To commit anyway:"
+  echo "       SKIP_SIZE_CHECK=1 git commit ..."
+  echo ""
+  if [[ "${SKIP_SIZE_CHECK:-}" != "1" ]]; then
+    exit 1
+  fi
+fi

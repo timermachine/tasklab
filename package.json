@@ -11,10 +11,12 @@
     "test:all": "npm test && npm run test:e2e",
     "test:container": "bash scripts/test-container.sh",
     "test:container:report": "bash scripts/test-container.sh --report",
-    "docs:run-report-assets": "node docs/scripts/generate-run-taskhub-report-assets.js"
+    "docs:run-report-assets": "node docs/scripts/generate-run-taskhub-report-assets.js",
+    "prepare": "[ -d .git ] && husky || true"
   },
   "devDependencies": {
-    "@playwright/test": "^1.52.0"
+    "@playwright/test": "^1.52.0",
+    "husky": "^9.1.7"
   },
   "files": [
     "bin/",

@@ -37,6 +37,30 @@ Docker Desktop: https://docs.docker.com/desktop/install/mac-install/
 - [ ] Re-run `tasklab instructions` in any project you work in — a stale `AGENTS.md`
       from before this repo was cloned will have incorrect task paths
 
+## Branch and commit rules
+
+All work — whether done by a person or an AI agent — must happen on a named feature branch. Direct commits to `main` are blocked by a pre-commit hook.
+
+```bash
+git checkout -b feat/my-feature   # always start here
+```
+
+Branch naming convention: `feat/`, `fix/`, `docs/`, `chore/`.
+
+**200-line commit limit:** the pre-commit hook blocks commits that change more than 200 lines at once. This keeps PRs reviewable and reverts safe. If your staged diff is too large, split it:
+
+```bash
+git add -p   # interactively stage chunks, then commit in smaller pieces
+```
+
+If you genuinely need to exceed the limit (e.g. a bulk rename):
+
+```bash
+SKIP_SIZE_CHECK=1 git commit -m "chore: ..."
+```
+
+Use this sparingly — the hook exists to catch habit, not to block judgment.
+
 ## Clone and link
 
 ```bash
