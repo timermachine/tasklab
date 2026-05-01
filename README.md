@@ -194,6 +194,13 @@ Runtime artifacts (credentials, generated code, run state) always go to your pro
 
 ---
 
+## Contributing / development
+
+See [docs/dev-setup.md](docs/dev-setup.md) for local setup, running tests, and the
+two-directory model every contributor needs to understand.
+
+---
+
 ## License
 
 MIT

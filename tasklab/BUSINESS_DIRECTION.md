@@ -205,9 +205,30 @@ These are not failures — they are the next alignment checks as the project gro
 - **HITL ergonomics consistency:** session preludes, short copy/paste snippets, and link scripts should be consistent across tasks.
 - **Docs drift enforcement:** when browsing is unavailable, the system must fail closed (ask for docs/screens) rather than guessing; keep this invariant strong.
 
-## 10)CHORES direction gaps to fill likely should do
+## 10) CHORES direction gaps to fill likely should do
 
 this is a jot pad, based on updated business direction passes.
 It could get stale fast.
 currently run a task by asking codex inside tasklab to make a new task for someInterface, working ouput in ~/dev/someInterface. clunky.
 tasklab executes, but its too magical, quiet, needs to say what it has done, researched, assure up to date, what surfaces. Then insted of giving bash scripts to run should describe the steps.
+
+## 11) Roadmap items
+
+### Self-update check
+On each `tasklab` invocation, do a background/cached check against the npm registry for a newer version.
+If one exists, print a yellow notice at the end of output:
+
+  `update available (0.1.0 → 0.2.0) — run: npm install -g tasklab`
+
+Implementation notes:
+- Check `https://registry.npmjs.org/tasklab/latest` (or `npm view tasklab version`)
+- Cache the result in `~/.tasklab/.update-check` with a TTL (~24h) so it doesn't slow every run
+- Non-blocking: run check async or skip entirely if offline/slow
+- `tasklab --update` could be a convenience alias for `npm install -g tasklab`
+
+### CLI dependency install guidance
+When `tasklab_script_require_command` fires (missing CLI), the error message is freeform author text.
+No structured install-link mechanism exists.
+Roadmap: standardise a `requires` block in `task.yaml` with per-tool install URLs, so tasklab can
+print a formatted "install instructions" block automatically on preflight failure, rather than relying
+on each task author to write their own message.
