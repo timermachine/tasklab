@@ -64,6 +64,11 @@ function writeTaskFixture(root, slug, options = {}) {
   return writeTaskFiles(path.join(root, 'tasklab', 'tasks'), slug, options);
 }
 
+// Write a task into the user-level local tasks dir (~/.tasklab/tasks/ resolved via homeDir)
+function writeLocalTask(homeDir, slug, options = {}) {
+  return writeTaskFiles(path.join(homeDir, '.tasklab', 'tasks'), slug, options);
+}
+
 function writeFakeHub(homeDir, slug, options = {}) {
   const hubRoot = path.join(homeDir, '.tasklab', 'hub');
   writeTaskFiles(path.join(hubRoot, 'tasks'), slug, options);
@@ -113,5 +118,6 @@ module.exports = {
   writeFakeHubTaskFromDir,
   writeFakeHub,
   writeFile,
+  writeLocalTask,
   writeTaskFixture,
 };

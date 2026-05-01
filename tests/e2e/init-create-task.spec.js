@@ -21,9 +21,9 @@ test('scaffolds a new task from the CLI and renders it in the portal', async ({ 
 
   expect(result.code).toBe(0);
   expect(result.stdout).toContain('Scaffolded: demo/new-task');
-  expect(result.stdout).toContain('tasklab/tasks/demo/new-task/');
+  expect(result.stdout).toContain('~/.tasklab/tasks/demo/new-task/');
 
-  const taskDir = path.join(projectRoot, 'tasklab', 'tasks', 'demo', 'new-task');
+  const taskDir = path.join(homeDir, '.tasklab', 'tasks', 'demo', 'new-task');
   expect(fs.existsSync(path.join(taskDir, 'task.yaml'))).toBeTruthy();
   expect(fs.existsSync(path.join(taskDir, 'plan.yaml'))).toBeTruthy();
   expect(fs.existsSync(path.join(taskDir, 'outputs', 'scripts', '01-preflight.sh'))).toBeTruthy();

@@ -9,6 +9,8 @@
     "test": "node --test tests/**/*.test.js",
     "test:e2e": "playwright test",
     "test:all": "npm test && npm run test:e2e",
+    "test:container": "bash scripts/test-container.sh",
+    "test:container:report": "bash scripts/test-container.sh --report",
     "docs:run-report-assets": "node docs/scripts/generate-run-taskhub-report-assets.js"
   },
   "devDependencies": {

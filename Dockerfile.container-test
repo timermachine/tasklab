@@ -1,0 +1,32 @@
+FROM node:20-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash git curl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+# yq — needed for portal generation (single binary, cached in Docker layer)
+RUN ARCH=$(uname -m) && \
+    case "$ARCH" in aarch64|arm64) YQ=arm64 ;; *) YQ=amd64 ;; esac && \
+    curl -sSfL -o /usr/local/bin/yq \
+      "https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_${YQ}" && \
+    chmod +x /usr/local/bin/yq
+
+WORKDIR /build
+
+# Install from packed tarball — tests exactly what npm publish would ship
+COPY tasklab-*.tgz ./
+RUN npm install -g ./tasklab-*.tgz && rm -f ./tasklab-*.tgz
+
+COPY tests/container/ /tests/
+RUN chmod +x /tests/*.sh
+
+# Fresh user — no ~/.tasklab, no credentials, no config
+RUN useradd -m -d /home/smoketest smoketest
+USER smoketest
+
+ENV HOME=/home/smoketest
+# Allow npm install -g without sudo
+ENV NPM_CONFIG_PREFIX=/home/smoketest/.npm-global
+ENV PATH="/home/smoketest/.npm-global/bin:${PATH}"
+
+CMD ["/tests/journey.sh"]

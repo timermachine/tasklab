@@ -7,7 +7,7 @@ const {
   runTasklab,
   tmpDir,
   writeFakeHub,
-  writeTaskFixture,
+  writeLocalTask,
 } = require('./helpers');
 
 test('runs a TaskHub task, improves it locally, and exports a TaskHub improvement', async () => {
@@ -24,7 +24,7 @@ test('runs a TaskHub task, improves it locally, and exports a TaskHub improvemen
   expect(hubRun.code).toBe(0);
   expect(hubRun.stdout).toContain(`${slug} completed`);
 
-  const localDir = writeTaskFixture(projectRoot, slug);
+  const localDir = writeLocalTask(homeDir, slug);
   fs.appendFileSync(path.join(localDir, 'plan.yaml'), '\n  - "Record improved version handling in setup-report.md."\n');
   fs.appendFileSync(path.join(localDir, 'task.yaml'), '\n# local improvement: better version handling\n');
 

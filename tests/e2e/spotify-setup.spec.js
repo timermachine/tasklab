@@ -138,7 +138,7 @@ test('portal shows preflight failure output for Spotify task', async ({ page }) 
   await page.goto(pathToFileURL(portalPath).href);
 
   // Error output visible in portal
-  await expect(page.getByText('SPOTIFY_CLIENT_ID', { exact: false })).toBeVisible();
+  await expect(page.getByText('SPOTIFY_CLIENT_ID', { exact: false }).first()).toBeVisible();
   await expect(page.locator('.step-card.status-failed')).toHaveCount(1);
 
   // Meta refresh still present — portal should keep polling so re-run is picked up
