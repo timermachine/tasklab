@@ -28,6 +28,15 @@ Docker Desktop: https://docs.docker.com/desktop/install/mac-install/
 
 ---
 
+## First day checklist
+
+- [ ] Install prerequisites (see table above)
+- [ ] Clone, install deps, and link the binary (see below)
+- [ ] Run `npm test` — all tests should pass
+- [ ] Run `npm run test:container` — all 36 checks should pass
+- [ ] Re-run `tasklab instructions` in any project you work in — a stale `AGENTS.md`
+      from before this repo was cloned will have incorrect task paths
+
 ## Clone and link
 
 ```bash
